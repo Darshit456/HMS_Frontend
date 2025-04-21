@@ -1,12 +1,13 @@
 // src/routes/AppRoutes.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from '../pages/Login';
+import PatientDashboard from "../pages/Dashboard/PatientDashboard.jsx";
 
 const AppRoutes = () => {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<Login />} />
+                <Route path="/" element={<PatientDashboard />} />
                 {/* Future routes will go here */}
             </Routes>
         </Router>
