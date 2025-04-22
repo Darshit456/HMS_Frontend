@@ -10,12 +10,12 @@ const appointments = [
 
 const AppointmentsSection = () => {
     return (
-        <div className="bg-blue-300 dark:bg-gray-800 text-white p-4 rounded-2xl shadow-md h-full flex flex-col group">
+        <div className="bg-gradient-to-r from-pink-400 to-yellow-400 dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex flex-col group">
             <h2 className="text-lg font-semibold mb-4">Your Appointments</h2>
             <div className="overflow-y-auto grow custom-scroll group-hover:scroll-visible pr-2">
                 <div className="space-y-4">
                     {appointments.map((appt) => (
-                        <div key={appt.id} className="border rounded-lg p-4 bg-gray-700">
+                        <div key={appt.id} className="border dark:border-none rounded-lg p-4 bg-white dark:bg-gray-700">
                             <p><strong>Date:</strong> {appt.date}</p>
                             <p><strong>Time:</strong> {appt.time}</p>
                             <p><strong>Doctor:</strong> {appt.doctor}</p>

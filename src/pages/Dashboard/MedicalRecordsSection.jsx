@@ -11,18 +11,18 @@ const medicalRecords = [
 
 const MedicalRecordsSection = () => {
     return (
-        <div className="bg-gray-800 text-white p-4 rounded-2xl shadow-md h-full flex flex-col group">
+        <div className="dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex flex-col group">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <FaFileMedical className="text-red-500" /> Medical Records
             </h2>
             <div className="overflow-y-auto grow custom-scroll group-hover:scroll-visible pr-2">
                 <ul className="space-y-4">
                     {medicalRecords.map((record) => (
-                        <li key={record.id} className="bg-gray-700 p-4 rounded-lg">
+                        <li key={record.id} className="border dark:border-none dark:bg-gray-700 p-4 rounded-lg">
                             <p className="text-lg font-medium">{record.title}</p>
-                            <p className="text-sm text-gray-300">{record.description}</p>
-                            <p className="text-sm text-gray-300 font-medium">Prescription: {record.prescription}</p>
-                            <span className="text-xs text-gray-400">{record.date}</span>
+                            <p className="text-sm dark:text-gray-300">{record.description}</p>
+                            <p className="text-sm dark:text-gray-300 font-medium">Prescription: {record.prescription}</p>
+                            <span className="text-xs dark:text-gray-400">{record.date}</span>
                         </li>
                     ))}
                 </ul>

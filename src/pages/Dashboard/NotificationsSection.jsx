@@ -11,14 +11,14 @@ const notifications = [
 
 const NotificationsSection = () => {
     return (
-        <div className="bg-gray-800 text-white p-4 rounded-2xl shadow-md h-full group">
+        <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full group">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <FaBell className="text-yellow-400" /> Notifications
             </h2>
             <div className="overflow-y-auto max-h-60 custom-scroll group-hover:scroll-visible">
                 <ul className="space-y-3 pr-2">
                     {notifications.map((note) => (
-                        <li key={note.id} className="bg-gray-700 p-3 rounded-md flex items-start gap-3">
+                        <li key={note.id} className="bg-yellow-50 dark:bg-gray-700 p-3 rounded-md flex items-start gap-3">
                             <div className="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full font-bold">
                                 {note.gender === "male" ? "M" : "F"}
                             </div>
