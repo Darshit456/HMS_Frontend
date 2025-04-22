@@ -3,25 +3,30 @@ import React from "react";
 import { FaFileMedical } from "react-icons/fa";
 
 const medicalRecords = [
-    { id: 1, title: "Blood Test Report", date: "2025-04-10", description: "Routine blood test results." },
-    { id: 2, title: "X-ray Report", date: "2025-03-25", description: "Chest X-ray for persistent cough." },
+    { id: 1, title: "Blood Test Report", date: "2025-04-10", description: "Routine blood test.", prescription: "Iron, Vitamin D" },
+    { id: 2, title: "Chest X-ray", date: "2025-03-25", description: "Cough symptoms.", prescription: "Antibiotics" },
+    { id: 3, title: "ECG Report", date: "2025-02-15", description: "Heart rhythm analysis.", prescription: "Monitor + Beta Blockers" },
+    { id: 4, title: "MRI Scan", date: "2025-01-20", description: "Headache issue.", prescription: "Neurology consult" },
 ];
 
 const MedicalRecordsSection = () => {
     return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+        <div className="bg-gray-800 text-white p-4 rounded-2xl shadow-md h-full flex flex-col group">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <FaFileMedical className="text-red-500" /> Medical Records
             </h2>
-            <ul className="space-y-4">
-                {medicalRecords.map((record) => (
-                    <li key={record.id} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                        <p className="text-lg text-gray-900 dark:text-white font-medium">{record.title}</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">{record.description}</p>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{record.date}</span>
-                    </li>
-                ))}
-            </ul>
+            <div className="overflow-y-auto grow custom-scroll group-hover:scroll-visible pr-2">
+                <ul className="space-y-4">
+                    {medicalRecords.map((record) => (
+                        <li key={record.id} className="bg-gray-700 p-4 rounded-lg">
+                            <p className="text-lg font-medium">{record.title}</p>
+                            <p className="text-sm text-gray-300">{record.description}</p>
+                            <p className="text-sm text-gray-300 font-medium">Prescription: {record.prescription}</p>
+                            <span className="text-xs text-gray-400">{record.date}</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 };
