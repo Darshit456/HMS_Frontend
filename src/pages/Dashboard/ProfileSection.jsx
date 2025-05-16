@@ -13,7 +13,7 @@ const ProfileSection = () => {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6">
+        <div className=" bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Profile</h2>
             <div className="flex items-center space-x-4">
                 <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-full">

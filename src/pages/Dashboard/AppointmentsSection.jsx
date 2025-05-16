@@ -10,7 +10,7 @@ const appointments = [
 
 const AppointmentsSection = () => {
     return (
-        <div className="bg-gradient-to-r from-pink-400 to-yellow-400 dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex flex-col group">
+        <div className=" dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex flex-col group">
             <h2 className="text-lg font-semibold mb-4">Your Appointments</h2>
             <div className="overflow-y-auto grow custom-scroll group-hover:scroll-visible pr-2">
                 <div className="space-y-4">

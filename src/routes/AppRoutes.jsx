@@ -7,7 +7,8 @@ const AppRoutes = () => {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<PatientDashboard />} />
+                <Route path="/" element={< Login />} />
+                <Route path="/patient/dashboard" element={<PatientDashboard />} /> {/* Patient Dashboard Route */}
                 {/* Future routes will go here */}
             </Routes>
         </Router>
