@@ -67,7 +67,7 @@ const LoginForm = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email Field */}
             <div>
-                <label className="block text-sm font-medium text-gray-800 dark:text-gray-300">Email</label>
+                <label className="block text-sm font-medium text-gray-800 dark:text-gray-300">email</label>
                 <input
                     type="email"
                     placeholder="you@example.com"

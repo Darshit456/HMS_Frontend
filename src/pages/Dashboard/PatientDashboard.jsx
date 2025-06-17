@@ -8,10 +8,10 @@ import RequestAppointmentCard from "./RequestAppointmentCard";
 
 const PatientDashboard = () => {
     return (
-        <div className="h-screen w-full overflow-hidden bg-gray-100 dark:bg-gray-900 p-4 space-y-4">
-            <h1 className="text-2xl font-bold text-center text-blue-600 dark:text-blue-400">Welcome to Your Dashboard</h1>
+        <div className="h-screen w-full overflow-auto bg-gray-100 dark:bg-gray-900 p-4 space-y-4 custom-scroll pb-8">
+            <h5 className="text-xl font-bold text-center text-blue-600 dark:text-blue-400">Welcome to Your Dashboard</h5>
 
-            <div className="grid grid-cols-12 gap-4 h-[85%]">
+            <div className="grid grid-cols-12 gap-4 h-[75%]">
                 <div className="col-span-3">
                     <ProfileSection />
                 </div>
