@@ -101,4 +101,3 @@ button:focus-visible {
 .group:not(:hover) .custom-scroll::-webkit-scrollbar-thumb {
   background: transparent;
 }
-
