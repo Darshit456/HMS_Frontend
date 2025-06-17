@@ -1,33 +1,60 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaUser } from "react-icons/fa";
+import { getPatientProfile } from "../../services/patientApi";
 
 const ProfileSection = () => {
-    const user = {
-        firstName: "John",
-        lastName: "Doe",
-        gender: "Male",
-        dob: "1990-01-01",
-        email: "john.doe@example.com",
-        phone: "+1234567890",
-        address: "123 Main St, City, Country",
-    };
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const response = await getPatientProfile();
+                setUser(response.data);
+            } catch (err) {
+                setError("Failed to load profile data");
+                console.error("Profile fetch error:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProfile();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 flex items-center justify-center">
+                <div className="text-gray-500">Loading profile...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 flex items-center justify-center">
+                <div className="text-red-500">{error}</div>
+            </div>
+        );
+    }
 
     return (
-        <div className=" bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6">
+        <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Profile</h2>
             <div className="flex items-center space-x-4">
-                <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-full">
+                <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-full flex-shrink-0">
                     <FaUser className="text-3xl text-blue-600 dark:text-blue-300" />
                 </div>
-                <div className="text-gray-800 dark:text-gray-200">
-                    <p className="text-lg font-semibold">{user.firstName} {user.lastName}</p>
-                    <p className="text-sm">{user.email}</p>
-                    <p className="text-sm">{user.phone}</p>
+                <div className="text-gray-800 dark:text-gray-200 min-w-0 flex-1">
+                    <p className="text-lg font-semibold truncate">{user.firstName} {user.lastName}</p>
+                    <p className="text-sm truncate">{user.email}</p>
+                    <p className="text-sm truncate">{user.phone}</p>
                 </div>
             </div>
             <div className="mt-4 text-sm text-gray-700 dark:text-gray-300">
                 <p><span className="font-medium">Gender:</span> {user.gender}</p>
-                <p><span className="font-medium">Date of Birth:</span> {user.dob}</p>
+                <p><span className="font-medium">Date of Birth:</span> {user.dateOfBirth}</p>
                 <p><span className="font-medium">Address:</span> {user.address}</p>
             </div>
             <div className="mt-4">
