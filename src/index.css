@@ -101,3 +101,20 @@ button:focus-visible {
 .group:not(:hover) .custom-scroll::-webkit-scrollbar-thumb {
   background: transparent;
 }
+
+.blur-backdrop {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.modal-backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Fallback for browsers that don't support backdrop-filter */
+@supports not (backdrop-filter: blur(8px)) {
+  .modal-backdrop {
+    background: rgba(0, 0, 0, 0.7);
+  }
+}
