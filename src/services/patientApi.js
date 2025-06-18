@@ -29,13 +29,13 @@ export const updatePatientProfile = async (patientId, updateData) => {
     try {
         const token = localStorage.getItem("token");
 
-        // Create JSON Patch operations array
+        // Use correct property names that match your backend model
         const patchOperations = [];
 
         if (updateData.firstName) {
             patchOperations.push({
                 "operationType": 0,
-                "path": "/firstName",
+                "path": "/FirstName",    // Changed from "/First Name"
                 "op": "replace",
                 "value": updateData.firstName
             });
@@ -44,7 +44,7 @@ export const updatePatientProfile = async (patientId, updateData) => {
         if (updateData.lastName) {
             patchOperations.push({
                 "operationType": 0,
-                "path": "/lastName",
+                "path": "/LastName",     // Changed from "/Last Name"
                 "op": "replace",
                 "value": updateData.lastName
             });
@@ -53,7 +53,7 @@ export const updatePatientProfile = async (patientId, updateData) => {
         if (updateData.email) {
             patchOperations.push({
                 "operationType": 0,
-                "path": "/email",
+                "path": "/Email",
                 "op": "replace",
                 "value": updateData.email
             });
@@ -62,7 +62,7 @@ export const updatePatientProfile = async (patientId, updateData) => {
         if (updateData.phone) {
             patchOperations.push({
                 "operationType": 0,
-                "path": "/phone",
+                "path": "/Phone",
                 "op": "replace",
                 "value": updateData.phone
             });
@@ -71,11 +71,13 @@ export const updatePatientProfile = async (patientId, updateData) => {
         if (updateData.address) {
             patchOperations.push({
                 "operationType": 0,
-                "path": "/address",
+                "path": "/Address",
                 "op": "replace",
                 "value": updateData.address
             });
         }
+
+        console.log("Sending patch operations:", patchOperations);
 
         const response = await axios.patch(`${API_URL}/update/${patientId}`, patchOperations, {
             headers: {
@@ -87,6 +89,7 @@ export const updatePatientProfile = async (patientId, updateData) => {
         return response;
     } catch (error) {
         console.error("Error updating profile:", error);
+        console.error("Backend response:", error.response?.data);
         throw error;
     }
 };

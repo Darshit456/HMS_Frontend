@@ -22,13 +22,28 @@ const ProfileSection = () => {
 
     const handleSave = async () => {
         try {
-            await updatePatientProfile(user.patientID, editData);
-            setUser({...user, ...editData}); // Update local state
+            console.log("Patient ID:", user.patientID); // Changed to patientID (uppercase)
+            console.log("Edit data:", editData);
+
+            await updatePatientProfile(user.patientID, editData); // Changed to patientID
+
+            // Update local state (for immediate UI update)
+            setUser({...user, ...editData});
+
+            // Update localStorage so it persists
+            const updatedUserDetails = {...user, ...editData};
+            localStorage.setItem("userDetails", JSON.stringify(updatedUserDetails));
+
             setIsEditOpen(false);
             alert("Profile updated successfully!");
+
+            // Refresh the page after successful update
+            window.location.reload();
+            
         } catch (error) {
             console.error("Update error:", error);
-            alert("Failed to update profile");
+            console.error("Backend error details:", error.response?.data); // Add this line
+            alert("Failed to update profile: " + error.message);
         }
     };
 
