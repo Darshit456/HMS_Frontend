@@ -24,3 +24,69 @@ export const getPatientProfile = async () => {
         throw error;
     }
 };
+
+export const updatePatientProfile = async (patientId, updateData) => {
+    try {
+        const token = localStorage.getItem("token");
+
+        // Create JSON Patch operations array
+        const patchOperations = [];
+
+        if (updateData.firstName) {
+            patchOperations.push({
+                "operationType": 0,
+                "path": "/firstName",
+                "op": "replace",
+                "value": updateData.firstName
+            });
+        }
+
+        if (updateData.lastName) {
+            patchOperations.push({
+                "operationType": 0,
+                "path": "/lastName",
+                "op": "replace",
+                "value": updateData.lastName
+            });
+        }
+
+        if (updateData.email) {
+            patchOperations.push({
+                "operationType": 0,
+                "path": "/email",
+                "op": "replace",
+                "value": updateData.email
+            });
+        }
+
+        if (updateData.phone) {
+            patchOperations.push({
+                "operationType": 0,
+                "path": "/phone",
+                "op": "replace",
+                "value": updateData.phone
+            });
+        }
+
+        if (updateData.address) {
+            patchOperations.push({
+                "operationType": 0,
+                "path": "/address",
+                "op": "replace",
+                "value": updateData.address
+            });
+        }
+
+        const response = await axios.patch(`${API_URL}/update/${patientId}`, patchOperations, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json-patch+json'
+            }
+        });
+
+        return response;
+    } catch (error) {
+        console.error("Error updating profile:", error);
+        throw error;
+    }
+};

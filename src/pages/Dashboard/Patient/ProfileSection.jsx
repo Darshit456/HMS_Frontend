@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaUser } from "react-icons/fa";
-import { getPatientProfile } from "../../../services/patientApi.js";
+import { getPatientProfile, updatePatientProfile } from "../../../services/patientApi.js";
 
 const ProfileSection = () => {
     const [user, setUser] = useState(null);
@@ -18,6 +18,18 @@ const ProfileSection = () => {
             address: user.address
         });
         setIsEditOpen(true);
+    };
+
+    const handleSave = async () => {
+        try {
+            await updatePatientProfile(user.patientID, editData);
+            setUser({...user, ...editData}); // Update local state
+            setIsEditOpen(false);
+            alert("Profile updated successfully!");
+        } catch (error) {
+            console.error("Update error:", error);
+            alert("Failed to update profile");
+        }
     };
 
     useEffect(() => {
@@ -138,7 +150,10 @@ const ProfileSection = () => {
                         </div>
 
                         <div className="flex gap-3 mt-6">
-                            <button className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                            <button
+                                onClick={handleSave}
+                                className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+                            >
                                 Save
                             </button>
                             <button
