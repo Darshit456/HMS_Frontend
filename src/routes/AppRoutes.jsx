@@ -1,7 +1,7 @@
 // src/routes/AppRoutes.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from '../pages/Login';
-import PatientDashboard from "../pages/Dashboard/PatientDashboard.jsx";
+import Login from '../pages/Login/Login.jsx';
+import PatientDashboard from "../pages/Dashboard/Patient/PatientDashboard.jsx";
 
 const AppRoutes = () => {
     return (

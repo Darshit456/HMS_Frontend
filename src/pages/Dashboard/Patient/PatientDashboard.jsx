@@ -1,10 +1,10 @@
 // File: src/pages/dashboard/PatientDashboard.jsx
 import React, { useState, useEffect } from "react";
-import ProfileSection from "./ProfileSection";
-import AppointmentsSection from "./AppointmentsSection";
-import NotificationsSection from "./NotificationsSection";
-import MedicalRecordsSection from "./MedicalRecordsSection";
-import RequestAppointmentCard from "./RequestAppointmentCard";
+import ProfileSection from "./ProfileSection.jsx";
+import AppointmentsSection from "./AppointmentsSection.jsx";
+import NotificationsSection from "./NotificationsSection.jsx";
+import MedicalRecordsSection from "./MedicalRecordsSection.jsx";
+import RequestAppointmentCard from "./RequestAppointmentCard.jsx";
 
 
 const PatientDashboard = () => {

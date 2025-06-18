@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import LoginForm from "./LoginForm"; // Import LoginForm component
-import SignupForm from "./SignupForm"; // Import SignupForm component
+import LoginForm from "./LoginForm.jsx"; // Import LoginForm component
+import SignupForm from "./Signup/SignupForm.jsx"; // Import SignupForm component
 
 const Login = () => {
     const [isSignup, setIsSignup] = useState(false); // Toggle between login and signup form

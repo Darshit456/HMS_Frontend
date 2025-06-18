@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../services/loginApi"; // Correct path for your file structure
+import { loginUser } from "../../services/loginApi.js"; // Correct path for your file structure
 
 const LoginForm = () => {
     const navigate = useNavigate();
