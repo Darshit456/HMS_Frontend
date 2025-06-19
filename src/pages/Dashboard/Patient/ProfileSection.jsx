@@ -39,7 +39,7 @@ const ProfileSection = () => {
 
             // Refresh the page after successful update
             window.location.reload();
-            
+
         } catch (error) {
             console.error("Update error:", error);
             console.error("Backend error details:", error.response?.data); // Add this line
