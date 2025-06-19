@@ -93,3 +93,4 @@ export const updatePatientProfile = async (patientId, updateData) => {
         throw error;
     }
 };
+
