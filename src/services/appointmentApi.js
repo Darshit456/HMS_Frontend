@@ -1,7 +1,7 @@
 // src/services/appointmentApi.js
 import axios from "axios";
 
-const API_URL = "https://localhost:7195/api/Appointment";
+const API_URL = "https://localhost:7195/api/Appointment"; // Changed to HTTPS
 
 export const getPatientAppointments = async () => {
     try {
@@ -30,6 +30,41 @@ export const getPatientAppointments = async () => {
 
     } catch (error) {
         console.error("Error fetching appointments:", error);
+        throw error;
+    }
+};
+
+export const createAppointment = async (appointmentData) => {
+    try {
+        const token = localStorage.getItem("token");
+        const userDetails = localStorage.getItem("userDetails");
+
+        if (!userDetails) {
+            throw new Error("No user details found. Please login again.");
+        }
+
+        const patientData = JSON.parse(userDetails);
+
+        const appointmentPayload = {
+            patientID: patientData.patientID, // Auto-populated from localStorage
+            doctorID: appointmentData.doctorID,
+            reason: appointmentData.reason,
+            appointmentDateTime: appointmentData.appointmentDateTime
+        };
+
+        console.log("Creating appointment:", appointmentPayload);
+
+        const response = await axios.post(`${API_URL}/Create`, appointmentPayload, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        return response.data;
+
+    } catch (error) {
+        console.error("Error creating appointment:", error);
         throw error;
     }
 };

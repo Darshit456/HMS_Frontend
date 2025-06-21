@@ -31,9 +31,18 @@ const AppointmentsSection = () => {
 
             const appointmentsData = await getPatientAppointments();
 
+            // Debug: Let's see the actual structure
+            console.log("Raw appointment data from API:", appointmentsData);
+            if (appointmentsData.length > 0) {
+                console.log("First appointment object:", appointmentsData[0]);
+                console.log("Available fields:", Object.keys(appointmentsData[0]));
+            }
+
             // Transform the data to match your existing UI structure
             const transformedAppointments = appointmentsData.map(appointment => {
                 const { date, time } = formatDateTime(appointment.dateTime); // Note: API uses 'dateTime' not 'appointmentDateTime'
+
+                console.log("Appointment reason field:", appointment.reason); // Debug reason field
 
                 return {
                     id: appointment.token, // API uses 'token' field as appointment ID
@@ -41,7 +50,7 @@ const AppointmentsSection = () => {
                     time: time,
                     doctor: appointment.doctorName, // API returns doctorName directly
                     status: appointment.status,
-                    reason: appointment.reason || 'General Consultation' // Fallback if reason not provided
+                    reason: appointment.reason // Get reason directly from database - no fallback
                 };
             });
 
@@ -120,6 +129,7 @@ const AppointmentsSection = () => {
                                 <p><strong>Date:</strong> {appt.date}</p>
                                 <p><strong>Time:</strong> {appt.time}</p>
                                 <p><strong>Doctor:</strong> {appt.doctor}</p>
+                                <p><strong>Reason:</strong> {appt.reason}</p>
                                 <p className={`font-semibold ${
                                     appt.status === "Upcoming"
                                         ? "text-green-400"
