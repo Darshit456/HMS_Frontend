@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaCalendarCheck, FaCheck, FaTimes, FaClock } from "react-icons/fa";
 import { getDoctorAppointments, updateAppointmentStatus } from "../../../services/Doctor/doctorAppointmentApi.js";
+
 const DoctorAppointmentsSection = () => {
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -71,6 +72,23 @@ const DoctorAppointmentsSection = () => {
         }
     };
 
+    // Function to check if appointment is today (not past dates)
+    const isToday = (appointmentDateTime) => {
+        try {
+            const appointmentDate = new Date(appointmentDateTime);
+            const today = new Date();
+
+            // Reset time to compare only dates
+            appointmentDate.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+
+            return appointmentDate.getTime() === today.getTime();
+        } catch (error) {
+            console.error("Date comparison error:", error);
+            return false;
+        }
+    };
+
     // Function to fetch appointments
     const fetchAppointments = async () => {
         try {
@@ -79,24 +97,40 @@ const DoctorAppointmentsSection = () => {
 
             const appointmentsData = await getDoctorAppointments();
 
-            // Transform the data
-            const transformedAppointments = appointmentsData.map(appointment => {
-                const { date, time } = formatDateTime(appointment.appointmentDateTime || appointment.dateTime);
+            // Filter for TODAY ONLY and exclude pending ones
+            const todaysConfirmedAppointments = appointmentsData.filter(appointment => {
+                const isTodayAppointment = isToday(appointment.appointmentDateTime);
+                const isPending = appointment.status?.toLowerCase() === 'pending';
+
+                console.log(`Appointment ${appointment.appointmentID}:`, {
+                    dateTime: appointment.appointmentDateTime,
+                    isToday: isTodayAppointment,
+                    status: appointment.status,
+                    isPending: isPending,
+                    included: isTodayAppointment && !isPending
+                });
+
+                return isTodayAppointment && !isPending; // Only today's confirmed appointments
+            });
+
+            // Transform the data (patient data is already enriched by API)
+            const transformedAppointments = todaysConfirmedAppointments.map(appointment => {
+                const { date, time } = formatDateTime(appointment.appointmentDateTime);
 
                 return {
-                    id: appointment.appointmentID || appointment.token,
+                    id: appointment.appointmentID,
                     date: date,
                     time: time,
-                    patientName: `${appointment.patientFirstName || appointment.firstName || 'Unknown'} ${appointment.patientLastName || appointment.lastName || 'Patient'}`,
+                    patientName: `${appointment.patientFirstName} ${appointment.patientLastName}`,
                     status: appointment.status,
                     reason: appointment.reason,
-                    patientPhone: appointment.patientPhone || appointment.phone || 'N/A',
-                    patientEmail: appointment.patientEmail || appointment.email || 'N/A'
+                    patientPhone: appointment.patientPhone,
+                    patientEmail: appointment.patientEmail
                 };
             });
 
             setAppointments(transformedAppointments);
-            console.log("Transformed doctor appointments:", transformedAppointments);
+            console.log("Today's confirmed appointments only:", transformedAppointments);
 
         } catch (err) {
             console.error("Failed to fetch appointments:", err);
@@ -166,7 +200,7 @@ const DoctorAppointmentsSection = () => {
                 <div className="space-y-4">
                     {appointments.length === 0 ? (
                         <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                            No appointments today
+                            No confirmed appointments today
                         </div>
                     ) : (
                         appointments.map((appt) => (
@@ -189,28 +223,7 @@ const DoctorAppointmentsSection = () => {
                                         Status: {appt.status}
                                     </p>
 
-                                    {/* Action Buttons */}
-                                    {appt.status.toLowerCase() === 'pending' && (
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => handleStatusUpdate(appt.id, 'Confirmed')}
-                                                disabled={updatingStatus === appt.id}
-                                                className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition flex items-center gap-1 disabled:bg-gray-400"
-                                            >
-                                                <FaCheck className="text-xs" />
-                                                {updatingStatus === appt.id ? 'Updating...' : 'Accept'}
-                                            </button>
-                                            <button
-                                                onClick={() => handleStatusUpdate(appt.id, 'Cancelled')}
-                                                disabled={updatingStatus === appt.id}
-                                                className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition flex items-center gap-1 disabled:bg-gray-400"
-                                            >
-                                                <FaTimes className="text-xs" />
-                                                Reject
-                                            </button>
-                                        </div>
-                                    )}
-
+                                    {/* Action Buttons - Only for Confirmed appointments */}
                                     {appt.status.toLowerCase() === 'confirmed' && (
                                         <button
                                             onClick={() => handleStatusUpdate(appt.id, 'Completed')}
@@ -221,6 +234,8 @@ const DoctorAppointmentsSection = () => {
                                             {updatingStatus === appt.id ? 'Updating...' : 'Mark Complete'}
                                         </button>
                                     )}
+
+                                    {/* No Accept/Reject buttons here - they belong in Patient Requests section */}
                                 </div>
                             </div>
                         ))

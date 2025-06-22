@@ -2,6 +2,32 @@
 import axios from "axios";
 
 const API_URL = "https://localhost:7195/api/Appointment";
+const PATIENT_API_URL = "https://localhost:7195/api/Patient";
+
+// Helper function to get patient details
+const getPatientDetails = async (patientId, token) => {
+    try {
+        console.log(`Fetching patient details for ID: ${patientId}`);
+
+        const response = await axios.get(`${PATIENT_API_URL}/${patientId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log(`Patient ${patientId} details:`, response.data);
+        return response.data;
+    } catch (error) {
+        console.error(`Failed to get patient ${patientId} details:`, error);
+        return {
+            firstName: 'Unknown',
+            lastName: 'Patient',
+            phone: 'N/A',
+            email: 'N/A'
+        };
+    }
+};
 
 export const getDoctorAppointments = async () => {
     try {
@@ -42,7 +68,25 @@ export const getDoctorAppointments = async () => {
         }
 
         console.log("Doctor appointments response:", response.data);
-        return response.data;
+
+        // Your API already returns patient names! No need for separate calls
+        // Just transform the data to match expected format
+        const transformedAppointments = response.data.map(appointment => ({
+            appointmentID: appointment.token,
+            patientID: appointment.patientID || null,
+            doctorID: appointment.doctorID || doctorID,
+            appointmentDateTime: appointment.appointmentDateTime,
+            status: appointment.status,
+            reason: appointment.reason,
+            // Use the patient name that's already in the response
+            patientFirstName: appointment.patientName ? appointment.patientName.split(' ')[0] : 'Unknown',
+            patientLastName: appointment.patientName ? appointment.patientName.split(' ').slice(1).join(' ') : 'Patient',
+            patientPhone: appointment.patientPhone || 'N/A',
+            patientEmail: appointment.patientEmail || 'N/A'
+        }));
+
+        console.log("Transformed appointments:", transformedAppointments);
+        return transformedAppointments;
 
     } catch (error) {
         console.error("Error fetching doctor appointments:", error);
@@ -106,34 +150,21 @@ export const updateAppointmentStatus = async (appointmentId, status) => {
 
 export const getTodayAppointments = async () => {
     try {
-        const token = localStorage.getItem("token");
-        const userDetails = localStorage.getItem("userDetails");
+        // Get all appointments and filter for today in frontend
+        const allAppointments = await getDoctorAppointments();
 
-        if (!userDetails) {
-            throw new Error("No user details found. Please login again.");
-        }
-
-        const doctorData = JSON.parse(userDetails);
-        const doctorID = doctorData.doctorID;
-
-        // Get today's date in YYYY-MM-DD format
-        const today = new Date().toISOString().split('T')[0];
-
-        console.log("Fetching today's appointments for doctor ID:", doctorID, "Date:", today);
-
-        const response = await axios.get(`${API_URL}/doctor/${doctorID}/date/${today}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+        // Filter for today's appointments
+        const today = new Date().toDateString();
+        const todayAppointments = allAppointments.filter(appointment => {
+            const appointmentDate = new Date(appointment.appointmentDateTime).toDateString();
+            return appointmentDate === today;
         });
 
-        console.log("Today's appointments response:", response.data);
-        return response.data;
+        console.log("Today's appointments:", todayAppointments);
+        return todayAppointments;
 
     } catch (error) {
         console.error("Error fetching today's appointments:", error);
-        // Fallback to all appointments if today's endpoint doesn't exist
-        return getDoctorAppointments();
+        throw error;
     }
 };
