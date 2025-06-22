@@ -78,20 +78,47 @@ const TodaysAppointments = () => {
                 return;
             }
 
-            // NO FILTERS - Show ALL appointments from API
-            const allAppointmentsData = allAppointments; // No filtering at all
+            // Filter for TODAY'S appointments only
+            const today = new Date();
+            const todaysAppointments = allAppointments.filter(appointment => {
+                try {
+                    const appointmentDate = new Date(appointment.dateTime);
+                    const isToday = appointmentDate.toDateString() === today.toDateString();
+
+                    console.log(`Appointment ${appointment.token}:`, {
+                        dateTime: appointment.dateTime,
+                        appointmentDate: appointmentDate.toDateString(),
+                        today: today.toDateString(),
+                        isToday: isToday,
+                        status: appointment.status
+                    });
+
+                    return isToday;
+                } catch (error) {
+                    console.error("Date parsing error:", error);
+                    return false;
+                }
+            });
+
+            console.log(`Filtered ${todaysAppointments.length} appointments for today out of ${allAppointments.length} total`);
 
             // Transform to display format
-            const transformedAppointments = allAppointmentsData.map(appointment => {
-                console.log("Transforming appointment:", appointment);
+            const transformedAppointments = todaysAppointments.map((appointment, index) => {
+                console.log(`Transforming appointment ${index}:`, appointment);
+                console.log(`Available keys:`, Object.keys(appointment));
+
+                // Use the exact field names from your API
+                const patientName = appointment.patientName || 'Unknown Patient';
+                const dateTime = appointment.dateTime || '2025-01-01T00:00:00';
+
                 return {
-                    id: appointment.token,
-                    patientName: appointment.patientName || 'Unknown Patient',
-                    time: formatTime(appointment.dateTime),
+                    id: appointment.token || index,
+                    patientName: patientName,
+                    time: formatTime(dateTime),
                     reason: appointment.reason || 'No reason specified',
-                    status: appointment.status,
+                    status: appointment.status || 'Unknown',
                     phone: appointment.patientPhone || 'N/A',
-                    date: appointment.dateTime // Show full date for debugging
+                    date: dateTime
                 };
             });
 
@@ -117,7 +144,7 @@ const TodaysAppointments = () => {
         return (
             <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-md h-full flex flex-col">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-800 dark:text-white">
-                    <FaCalendarCheck className="text-green-500" /> ALL Appointments (No Filters)
+                    <FaCalendarCheck className="text-green-500" /> Today's Appointments
                 </h2>
                 <div className="flex items-center justify-center h-full">
                     <div className="text-gray-500 dark:text-gray-400">Loading appointments...</div>
@@ -154,7 +181,7 @@ const TodaysAppointments = () => {
             <div className="overflow-y-auto flex-1 custom-scroll">
                 {appointments.length === 0 ? (
                     <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                        No appointments found from API
+                        No appointments today
                     </div>
                 ) : (
                     <div className="space-y-3">
@@ -173,9 +200,6 @@ const TodaysAppointments = () => {
                                         <p className="text-sm font-medium text-gray-800 dark:text-white">
                                             {appointment.time}
                                         </p>
-                                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                                            {appointment.date}
-                                        </p>
                                         <span className="text-xs px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full">
                                             {appointment.status}
                                         </span>
@@ -186,15 +210,21 @@ const TodaysAppointments = () => {
                                     <strong>Reason:</strong> {appointment.reason}
                                 </p>
 
-                                {/* Show Mark Complete button for any status */}
-                                <button
-                                    onClick={() => markComplete(appointment.id)}
-                                    disabled={updating === appointment.id}
-                                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 flex items-center justify-center gap-2"
-                                >
-                                    <FaClock className="text-sm" />
-                                    {updating === appointment.id ? 'Marking Complete...' : 'Mark as Complete'}
-                                </button>
+                                {/* Show Mark Complete button only for confirmed appointments */}
+                                {appointment.status.toLowerCase() === 'accepted' || appointment.status.toLowerCase() === 'confirmed' ? (
+                                    <button
+                                        onClick={() => markComplete(appointment.id)}
+                                        disabled={updating === appointment.id}
+                                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 flex items-center justify-center gap-2"
+                                    >
+                                        <FaClock className="text-sm" />
+                                        {updating === appointment.id ? 'Marking Complete...' : 'Mark as Complete'}
+                                    </button>
+                                ) : (
+                                    <div className="text-center text-sm text-gray-500 dark:text-gray-400 py-2">
+                                        Status: {appointment.status}
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
