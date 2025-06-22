@@ -88,14 +88,17 @@ export const updateDoctorProfile = async (doctorId, updateData) => {
 
         console.log("Sending doctor patch operations:", patchOperations);
 
-        const response = await axios.patch(`${API_URL}/update/${doctorId}`, patchOperations, {
+        // Use the correct endpoint: /api/Doctor/{id} (not /update/{id})
+        const response = await axios.patch(`${API_URL}/${doctorId}`, patchOperations, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json-patch+json'
             }
         });
 
+        console.log("Doctor profile update response:", response.data);
         return response;
+
     } catch (error) {
         console.error("Error updating doctor profile:", error);
         console.error("Backend response:", error.response?.data);

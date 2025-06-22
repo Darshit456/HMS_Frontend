@@ -1,6 +1,7 @@
 // File: src/pages/Dashboard/Doctor/DoctorDashboard.jsx
 import React, { useState, useEffect } from "react";
 import DoctorProfileSection from "../../dashboard/Doctor/DoctorProfileSection.jsx";
+import DoctorAppointmentsSection from "../../dashboard/Doctor/DoctorAppointmentsSection.jsx";
 
 const DoctorDashboard = () => {
     const [doctorName, setDoctorName] = useState("");
@@ -25,15 +26,10 @@ const DoctorDashboard = () => {
                     <DoctorProfileSection />
                 </div>
 
-                {/* Today's Appointments - Placeholder */}
+                {/* Today's Appointments - Now Real Component */}
                 <div className="col-span-6 overflow-hidden">
                     <div className="h-full">
-                        <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex flex-col">
-                            <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Today's Appointments</h2>
-                            <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                                Appointments Section Coming Soon...
-                            </div>
-                        </div>
+                        <DoctorAppointmentsSection />
                     </div>
                 </div>
 
