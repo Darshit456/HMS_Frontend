@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaSignOutAlt } from "react-icons/fa";
 import { getPatientProfile, updatePatientProfile } from "../../../services/patientApi.js";
 
 const ProfileSection = () => {
@@ -22,10 +22,10 @@ const ProfileSection = () => {
 
     const handleSave = async () => {
         try {
-            console.log("Patient ID:", user.patientID); // Changed to patientID (uppercase)
+            console.log("Patient ID:", user.patientID);
             console.log("Edit data:", editData);
 
-            await updatePatientProfile(user.patientID, editData); // Changed to patientID
+            await updatePatientProfile(user.patientID, editData);
 
             // Update local state (for immediate UI update)
             setUser({...user, ...editData});
@@ -42,8 +42,31 @@ const ProfileSection = () => {
 
         } catch (error) {
             console.error("Update error:", error);
-            console.error("Backend error details:", error.response?.data); // Add this line
+            console.error("Backend error details:", error.response?.data);
             alert("Failed to update profile: " + error.message);
+        }
+    };
+
+    const handleLogout = () => {
+        // Show confirmation dialog
+        if (window.confirm("Are you sure you want to logout?")) {
+            try {
+                // Clear all stored data
+                localStorage.removeItem("token");
+                localStorage.removeItem("userDetails");
+                localStorage.removeItem("userRole");
+
+                // Clear session storage as well (if you're using it)
+                sessionStorage.clear();
+
+                // Redirect to login page
+                window.location.href = "/"; // Adjust this path to your login route
+
+            } catch (error) {
+                console.error("Logout error:", error);
+                // Even if there's an error, try to redirect
+                window.location.href = "/";
+            }
         }
     };
 
@@ -97,12 +120,22 @@ const ProfileSection = () => {
                 <p><span className="font-medium">Date of Birth:</span> {user.dateOfBirth}</p>
                 <p><span className="font-medium">Address:</span> {user.address}</p>
             </div>
-            <div className="mt-4">
+
+            {/* Buttons Container - Edit Profile and Logout */}
+            <div className="mt-4 flex gap-3">
                 <button
                     onClick={handleEditClick}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex-1"
                 >
                     Edit Profile
+                </button>
+                <button
+                    onClick={handleLogout}
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition flex items-center gap-2"
+                    title="Logout"
+                >
+                    <FaSignOutAlt className="text-sm" />
+                    Logout
                 </button>
             </div>
 
