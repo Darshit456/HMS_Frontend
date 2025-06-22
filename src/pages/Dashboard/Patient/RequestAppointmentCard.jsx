@@ -41,7 +41,7 @@ const RequestAppointmentCard = () => {
         try {
             const appointmentsData = await getPatientAppointments();
 
-            // Filter only pending appointments
+            // Filter only pending appointments (strict check)
             const pendingAppointments = appointmentsData.filter(appointment =>
                 appointment.status && appointment.status.toLowerCase() === 'pending'
             );
