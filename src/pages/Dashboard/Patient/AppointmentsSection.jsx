@@ -23,6 +23,31 @@ const AppointmentsSection = () => {
         }
     };
 
+    // Function to get status color classes for all appointment statuses
+    const getStatusColor = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'confirmed':
+            case 'upcoming':
+            case 'scheduled':
+            case 'accepted':
+                return "text-green-400";
+            case 'cancelled':
+            case 'canceled':
+            case 'rejected':
+                return "text-red-500";
+            case 'pending':
+                return "text-yellow-400";
+            case 'completed':
+            case 'done':
+                return "text-blue-400";
+            case 'in-progress':
+            case 'ongoing':
+                return "text-purple-400";
+            default:
+                return "text-gray-400";
+        }
+    };
+
     // Function to fetch appointments
     const fetchAppointments = async () => {
         try {
@@ -31,26 +56,17 @@ const AppointmentsSection = () => {
 
             const appointmentsData = await getPatientAppointments();
 
-            // Debug: Let's see the actual structure
-            console.log("Raw appointment data from API:", appointmentsData);
-            if (appointmentsData.length > 0) {
-                console.log("First appointment object:", appointmentsData[0]);
-                console.log("Available fields:", Object.keys(appointmentsData[0]));
-            }
-
             // Transform the data to match your existing UI structure
             const transformedAppointments = appointmentsData.map(appointment => {
-                const { date, time } = formatDateTime(appointment.dateTime); // Note: API uses 'dateTime' not 'appointmentDateTime'
-
-                console.log("Appointment reason field:", appointment.reason); // Debug reason field
+                const { date, time } = formatDateTime(appointment.dateTime);
 
                 return {
-                    id: appointment.token, // API uses 'token' field as appointment ID
+                    id: appointment.token,
                     date: date,
                     time: time,
-                    doctor: appointment.doctorName, // API returns doctorName directly
+                    doctor: appointment.doctorName,
                     status: appointment.status,
-                    reason: appointment.reason // Get reason directly from database - no fallback
+                    reason: appointment.reason // Should now come from your updated backend
                 };
             });
 
@@ -130,13 +146,7 @@ const AppointmentsSection = () => {
                                 <p><strong>Time:</strong> {appt.time}</p>
                                 <p><strong>Doctor:</strong> {appt.doctor}</p>
                                 <p><strong>Reason:</strong> {appt.reason}</p>
-                                <p className={`font-semibold ${
-                                    appt.status === "Upcoming"
-                                        ? "text-green-400"
-                                        : appt.status === "Cancelled"
-                                            ? "text-red-500"
-                                            : "text-yellow-400"
-                                }`}>
+                                <p className={`font-semibold ${getStatusColor(appt.status)}`}>
                                     {appt.status}
                                 </p>
                             </div>
