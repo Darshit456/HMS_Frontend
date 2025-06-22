@@ -16,8 +16,7 @@ const DoctorProfileSection = () => {
             email: doctor.email,
             phone: doctor.phone,
             specialization: doctor.specialization,
-            experience: doctor.experience,
-            qualification: doctor.qualification
+            address: doctor.address
         });
         setIsEditOpen(true);
     };
@@ -117,9 +116,8 @@ const DoctorProfileSection = () => {
 
             <div className="mt-4 text-sm text-gray-700 dark:text-gray-300">
                 <p><span className="font-medium">Phone:</span> {doctor.phone}</p>
-                <p><span className="font-medium">Experience:</span> {doctor.experience} years</p>
-                <p><span className="font-medium">Qualification:</span> {doctor.qualification}</p>
-                <p><span className="font-medium">License:</span> {doctor.licenseNumber}</p>
+                <p><span className="font-medium">Email:</span> {doctor.email}</p>
+                <p><span className="font-medium">Address:</span> {doctor.address}</p>
             </div>
 
             {/* Buttons Container */}
@@ -198,22 +196,12 @@ const DoctorProfileSection = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Experience (years)</label>
-                                <input
-                                    type="number"
-                                    value={editData.experience || ''}
-                                    onChange={(e) => setEditData({...editData, experience: e.target.value})}
-                                    className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Qualification</label>
-                                <input
-                                    type="text"
-                                    value={editData.qualification || ''}
-                                    onChange={(e) => setEditData({...editData, qualification: e.target.value})}
-                                    className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Address</label>
+                                <textarea
+                                    value={editData.address || ''}
+                                    onChange={(e) => setEditData({...editData, address: e.target.value})}
+                                    rows="3"
+                                    className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white resize-none"
                                 />
                             </div>
                         </div>

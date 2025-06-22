@@ -77,21 +77,12 @@ export const updateDoctorProfile = async (doctorId, updateData) => {
             });
         }
 
-        if (updateData.experience) {
+        if (updateData.address) {
             patchOperations.push({
                 "operationType": 0,
-                "path": "/Experience",
+                "path": "/Address",
                 "op": "replace",
-                "value": parseInt(updateData.experience)
-            });
-        }
-
-        if (updateData.qualification) {
-            patchOperations.push({
-                "operationType": 0,
-                "path": "/Qualification",
-                "op": "replace",
-                "value": updateData.qualification
+                "value": updateData.address
             });
         }
 
