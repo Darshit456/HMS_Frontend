@@ -78,7 +78,7 @@ const TodaysAppointments = () => {
                 return;
             }
 
-            // Filter for TODAY'S appointments only
+            // Filter for TODAY'S appointments only (strict date matching)
             const today = new Date();
             const todaysAppointments = allAppointments.filter(appointment => {
                 try {
@@ -93,7 +93,7 @@ const TodaysAppointments = () => {
                         status: appointment.status
                     });
 
-                    return isToday;
+                    return isToday; // Only show today's appointments
                 } catch (error) {
                     console.error("Date parsing error:", error);
                     return false;
