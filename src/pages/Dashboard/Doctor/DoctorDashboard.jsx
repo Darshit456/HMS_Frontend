@@ -1,5 +1,6 @@
 // File: src/pages/Dashboard/Doctor/DoctorDashboard.jsx
 import React, { useState, useEffect } from "react";
+import DoctorProfileSection from "../../dashboard/Doctor/DoctorProfileSection.jsx";
 
 const DoctorDashboard = () => {
     const [doctorName, setDoctorName] = useState("");
@@ -19,14 +20,9 @@ const DoctorDashboard = () => {
             </h5>
 
             <div className="grid grid-cols-12 gap-4 h-[75%]">
-                {/* Doctor Profile Section - Placeholder */}
+                {/* Doctor Profile Section - Now Real Component */}
                 <div className="col-span-3">
-                    <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 h-full">
-                        <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Doctor Profile</h2>
-                        <div className="flex items-center justify-center h-32 text-gray-500 dark:text-gray-400">
-                            Profile Section Coming Soon...
-                        </div>
-                    </div>
+                    <DoctorProfileSection />
                 </div>
 
                 {/* Today's Appointments - Placeholder */}
@@ -66,7 +62,7 @@ const DoctorDashboard = () => {
                 {/* Schedule Management - Placeholder */}
                 <div className="col-span-4 overflow-hidden">
                     <div className="h-full">
-                        <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex flex-col">
+                        <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex-col">
                             <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Schedule</h2>
                             <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
                                 Schedule Section Coming Soon...
