@@ -69,24 +69,9 @@ export const getDoctorAppointments = async () => {
 
         console.log("Doctor appointments response:", response.data);
 
-        // Your API already returns patient names! No need for separate calls
-        // Just transform the data to match expected format
-        const transformedAppointments = response.data.map(appointment => ({
-            appointmentID: appointment.token,
-            patientID: appointment.patientID || null,
-            doctorID: appointment.doctorID || doctorID,
-            appointmentDateTime: appointment.appointmentDateTime,
-            status: appointment.status,
-            reason: appointment.reason,
-            // Use the patient name that's already in the response
-            patientFirstName: appointment.patientName ? appointment.patientName.split(' ')[0] : 'Unknown',
-            patientLastName: appointment.patientName ? appointment.patientName.split(' ').slice(1).join(' ') : 'Patient',
-            patientPhone: appointment.patientPhone || 'N/A',
-            patientEmail: appointment.patientEmail || 'N/A'
-        }));
-
-        console.log("Transformed appointments:", transformedAppointments);
-        return transformedAppointments;
+        // Your API already returns patient names! Just return the data as-is
+        console.log("Returning raw API data without transformation");
+        return response.data;
 
     } catch (error) {
         console.error("Error fetching doctor appointments:", error);

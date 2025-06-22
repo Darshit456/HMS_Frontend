@@ -1,7 +1,7 @@
 // File: src/pages/Dashboard/Doctor/DoctorDashboard.jsx
 import React, { useState, useEffect } from "react";
 import DoctorProfileSection from "../../dashboard/Doctor/DoctorProfileSection.jsx";
-import DoctorAppointmentsSection from "../../dashboard/Doctor/DoctorAppointmentsSection.jsx";
+import TodaysAppointments from "../../dashboard/Doctor/TodaysAppointments.jsx";
 
 const DoctorDashboard = () => {
     const [doctorName, setDoctorName] = useState("");
@@ -26,10 +26,10 @@ const DoctorDashboard = () => {
                     <DoctorProfileSection />
                 </div>
 
-                {/* Today's Appointments - Now Real Component */}
+                {/* Today's Appointments - Clean New Component */}
                 <div className="col-span-6 overflow-hidden">
                     <div className="h-full">
-                        <DoctorAppointmentsSection />
+                        <TodaysAppointments />
                     </div>
                 </div>
 
