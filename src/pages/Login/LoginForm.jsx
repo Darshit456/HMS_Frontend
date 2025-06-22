@@ -36,9 +36,20 @@ const LoginForm = () => {
                     localStorage.setItem("userDetails", JSON.stringify(userDetails));
                 }
 
-                // Always redirect to patient dashboard for now
-                // Later when you add other dashboards, you can update this logic
-                navigate("/patient/dashboard");
+                // Role-based routing
+                console.log("User role:", role); // Debug log
+
+                if (role === "Doctor") {
+                    console.log("Redirecting to doctor dashboard");
+                    navigate("/doctor/dashboard");
+                } else if (role === "Patient") {
+                    console.log("Redirecting to patient dashboard");
+                    navigate("/patient/dashboard");
+                } else {
+                    // Fallback - redirect to patient dashboard if role is unclear
+                    console.log("Role unclear, defaulting to patient dashboard. Role received:", role);
+                    navigate("/patient/dashboard");
+                }
             }
         } catch (error) {
             // Handle different error scenarios
