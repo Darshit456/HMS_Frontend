@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaUserClock, FaCheck, FaTimes, FaPhone, FaEnvelope, FaClock } from "react-icons/fa";
 import { getDoctorAppointments } from "../../../services/Doctor/doctorAppointmentApi.js";
-import axios from "axios";
+import { updateAppointmentStatus } from "../../../services/Doctor/patientRequestsApi.js";
 
 const PatientRequestsSection = () => {
     const [pendingRequests, setPendingRequests] = useState([]);
@@ -41,32 +41,14 @@ const PatientRequestsSection = () => {
     const acceptAppointment = async (appointmentId) => {
         try {
             setProcessing(appointmentId);
-            const token = localStorage.getItem("token");
+            await updateAppointmentStatus(appointmentId, 'Accepted');
 
-            console.log(`Accepting appointment ${appointmentId}`);
-
-            await axios.put(
-                `https://localhost:7195/api/Appointment/${appointmentId}/UpdateStatus`,
-                {
-                    status: "Accepted"
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
-
-            // Remove from pending requests
             setPendingRequests(prev =>
                 prev.filter(req => req.id !== appointmentId)
             );
 
             alert("Appointment accepted successfully!");
-
         } catch (error) {
-            console.error("Error accepting appointment:", error);
             alert("Failed to accept appointment. Please try again.");
         } finally {
             setProcessing(null);
@@ -77,37 +59,17 @@ const PatientRequestsSection = () => {
     const rejectAppointment = async () => {
         try {
             setProcessing(rejectionPopup.appointmentId);
-            const token = localStorage.getItem("token");
+            await updateAppointmentStatus(rejectionPopup.appointmentId, 'Rejected');
 
-            console.log(`Rejecting appointment ${rejectionPopup.appointmentId} with reason: ${rejectionReason}`);
-
-            await axios.put(
-                `https://localhost:7195/api/Appointment/${rejectionPopup.appointmentId}/UpdateStatus`,
-                {
-                    status: "Rejected",
-                    rejectionReason: rejectionReason || "No reason provided"
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
-
-            // Remove from pending requests
             setPendingRequests(prev =>
                 prev.filter(req => req.id !== rejectionPopup.appointmentId)
             );
 
-            // Close popup
             setRejectionPopup({ show: false, appointmentId: null });
             setRejectionReason("");
 
             alert("Appointment rejected successfully!");
-
         } catch (error) {
-            console.error("Error rejecting appointment:", error);
             alert("Failed to reject appointment. Please try again.");
         } finally {
             setProcessing(null);
@@ -147,7 +109,8 @@ const PatientRequestsSection = () => {
 
             // Transform to display format
             const transformedRequests = pendingAppointments.map((appointment, index) => ({
-                id: appointment.token || index,
+                id: appointment.token || index, // Keep this for UI
+                appointmentId: appointment.token, // Use token as the appointmentId for API calls
                 patientName: appointment.patientName || 'Unknown Patient',
                 phone: appointment.patientPhone || 'Phone not available',
                 email: appointment.patientEmail || 'Email not available',
@@ -265,7 +228,7 @@ const PatientRequestsSection = () => {
                                         className="flex-1 bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition disabled:bg-gray-400 flex items-center justify-center gap-2 text-sm font-semibold"
                                     >
                                         <FaCheck className="text-sm" />
-                                        {processing === request.id ? 'Accepting...' : 'Accept'}
+                                        {processing === request.id ? 'Accepting...' : 'Accept Request'}
                                     </button>
                                     <button
                                         onClick={() => openRejectionPopup(request.id)}
@@ -273,7 +236,7 @@ const PatientRequestsSection = () => {
                                         className="flex-1 bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition disabled:bg-gray-400 flex items-center justify-center gap-2 text-sm font-semibold"
                                     >
                                         <FaTimes className="text-sm" />
-                                        {processing === request.id ? 'Rejecting...' : 'Reject'}
+                                        {processing === request.id ? 'Rejecting...' : 'Reject Request'}
                                     </button>
                                 </div>
                             </div>
