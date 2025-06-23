@@ -45,14 +45,22 @@ export const createAppointment = async (appointmentData) => {
 
         const patientData = JSON.parse(userDetails);
 
+        // FIX: Check for different possible field names
+        const patientID = patientData.PatientID || patientData.patientID || patientData.patientId;
+
+        if (!patientID) {
+            console.error("Patient data structure:", patientData);
+            throw new Error("Patient ID not found in user data. Please login again.");
+        }
+
         const appointmentPayload = {
-            patientID: patientData.patientID, // Auto-populated from localStorage
+            patientID: patientID, // Now using the correct field
             doctorID: appointmentData.doctorID,
             reason: appointmentData.reason,
             appointmentDateTime: appointmentData.appointmentDateTime
         };
 
-        console.log("Creating appointment:", appointmentPayload);
+        console.log("Creating appointment with payload:", appointmentPayload);
 
         const response = await axios.post(`${API_URL}/Create`, appointmentPayload, {
             headers: {
@@ -65,6 +73,7 @@ export const createAppointment = async (appointmentData) => {
 
     } catch (error) {
         console.error("Error creating appointment:", error);
+        console.error("Error response:", error.response?.data);
         throw error;
     }
 };

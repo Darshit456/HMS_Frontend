@@ -4,32 +4,8 @@ import DoctorProfileSection from "../../dashboard/Doctor/DoctorProfileSection.js
 import TodaysAppointments from "../../dashboard/Doctor/TodaysAppointments.jsx";
 import PatientRequestsSection from "../../dashboard/Doctor/PatientRequestsSection.jsx";
 import ScheduleSection from "../../dashboard/Doctor/ScheduleSection.jsx";
-import AllAppointmentsSection from "../../dashboard/Doctor/AllAppointmentsSection.jsx"; // New import
-
-// Clean Notifications Component - Compact for single view
-const NotificationsSection = () => {
-    const [notifications] = useState([]); // Empty by default
-
-    return (
-        <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-2xl shadow-md h-full flex flex-col">
-            <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm sm:text-lg font-semibold flex items-center gap-2 text-gray-800 dark:text-white">
-                    🔔 Notifications
-                </h2>
-            </div>
-
-            <div className="overflow-y-auto flex-1 custom-scroll">
-                <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                    <div className="text-3xl sm:text-4xl mb-2 opacity-50">🔔</div>
-                    <h3 className="text-sm font-medium mb-1 text-gray-600 dark:text-gray-300">No Notifications</h3>
-                    <p className="text-xs text-center">
-                        New notifications will appear here
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
-};
+import AllAppointmentsSection from "../../dashboard/Doctor/AllAppointmentsSection.jsx";
+import NotificationsSection from "../../dashboard/Doctor/NotificationsSection.jsx";
 
 const DoctorDashboard = () => {
     const [doctorName, setDoctorName] = useState("");
@@ -75,7 +51,7 @@ const DoctorDashboard = () => {
                 </div>
 
                 <div className="lg:col-span-4 min-h-0">
-                    <AllAppointmentsSection /> {/* Changed from MyPatientsSection */}
+                    <AllAppointmentsSection />
                 </div>
 
                 <div className="lg:col-span-5 min-h-0">
