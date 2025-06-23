@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaCalendarCheck, FaClock } from "react-icons/fa";
+import { FaCalendarCheck, FaClock, FaPhone, FaEnvelope } from "react-icons/fa";
 import { getDoctorAppointments, updateAppointmentStatus } from "../../../services/Doctor/doctorAppointmentApi.js";
 
 const TodaysAppointments = () => {
@@ -7,18 +7,6 @@ const TodaysAppointments = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [updating, setUpdating] = useState(null);
-
-    // Check if appointment is today
-    const isToday = (dateString) => {
-        try {
-            const appointmentDate = new Date(dateString);
-            const today = new Date();
-
-            return appointmentDate.toDateString() === today.toDateString();
-        } catch (error) {
-            return false;
-        }
-    };
 
     // Format time display
     const formatTime = (dateString) => {
@@ -39,7 +27,6 @@ const TodaysAppointments = () => {
             setUpdating(appointmentId);
             await updateAppointmentStatus(appointmentId, 'Completed');
 
-            // Update local state
             setAppointments(prev =>
                 prev.map(apt =>
                     apt.id === appointmentId
@@ -62,75 +49,41 @@ const TodaysAppointments = () => {
             setLoading(true);
             setError("");
 
-            console.log("=== STARTING API CALL ===");
-            console.log("Doctor ID from localStorage:", JSON.parse(localStorage.getItem("userDetails"))?.doctorID);
-
             const allAppointments = await getDoctorAppointments();
-            console.log("=== API RESPONSE ===");
-            console.log("Type of response:", typeof allAppointments);
-            console.log("Is array:", Array.isArray(allAppointments));
-            console.log("Length:", allAppointments?.length);
-            console.log("Raw response:", allAppointments);
+            console.log("API Response:", allAppointments);
 
             if (!allAppointments || allAppointments.length === 0) {
-                console.log("=== NO DATA FROM API ===");
                 setAppointments([]);
                 return;
             }
 
-            // Filter for TODAY'S appointments only (strict date matching)
+            // Filter for today's appointments
             const today = new Date();
             const todaysAppointments = allAppointments.filter(appointment => {
                 try {
                     const appointmentDate = new Date(appointment.dateTime);
-                    const isToday = appointmentDate.toDateString() === today.toDateString();
-
-                    console.log(`Appointment ${appointment.token}:`, {
-                        dateTime: appointment.dateTime,
-                        appointmentDate: appointmentDate.toDateString(),
-                        today: today.toDateString(),
-                        isToday: isToday,
-                        status: appointment.status
-                    });
-
-                    return isToday; // Only show today's appointments
+                    return appointmentDate.toDateString() === today.toDateString();
                 } catch (error) {
-                    console.error("Date parsing error:", error);
                     return false;
                 }
             });
 
-            console.log(`Filtered ${todaysAppointments.length} appointments for today out of ${allAppointments.length} total`);
-
             // Transform to display format
-            const transformedAppointments = todaysAppointments.map((appointment, index) => {
-                console.log(`Transforming appointment ${index}:`, appointment);
-                console.log(`Available keys:`, Object.keys(appointment));
+            const transformedAppointments = todaysAppointments.map((appointment, index) => ({
+                id: appointment.token || index,
+                patientName: appointment.patientName || 'Unknown Patient',
+                time: formatTime(appointment.dateTime),
+                reason: appointment.reason || 'No reason specified',
+                status: appointment.status || 'Unknown',
+                phone: appointment.patientPhone || 'Phone not available',
+                email: appointment.patientEmail || 'Email not available'
+            }));
 
-                // Use the exact field names from your API
-                const patientName = appointment.patientName || 'Unknown Patient';
-                const dateTime = appointment.dateTime || '2025-01-01T00:00:00';
-
-                return {
-                    id: appointment.token || index,
-                    patientName: patientName,
-                    time: formatTime(dateTime),
-                    reason: appointment.reason || 'No reason specified',
-                    status: appointment.status || 'Unknown',
-                    phone: appointment.patientPhone || 'N/A',
-                    date: dateTime
-                };
-            });
-
-            console.log("Final transformed appointments:", transformedAppointments);
             setAppointments(transformedAppointments);
 
         } catch (err) {
-            console.error("=== API ERROR ===");
-            console.error("Error details:", err);
-            console.error("Error message:", err.message);
-            console.error("Error response:", err.response?.data);
-            setError(`API Error: ${err.message}`);
+            console.error("Error fetching appointments:", err);
+            setError(`Error loading appointments: ${err.message}`);
         } finally {
             setLoading(false);
         }
@@ -160,7 +113,7 @@ const TodaysAppointments = () => {
                     <FaCalendarCheck className="text-green-500" /> Today's Appointments
                 </h2>
                 <div className="flex flex-col items-center justify-center h-full space-y-4">
-                    <div className="text-red-500">{error}</div>
+                    <div className="text-red-500 text-center">{error}</div>
                     <button
                         onClick={fetchTodaysAppointments}
                         className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
@@ -187,20 +140,35 @@ const TodaysAppointments = () => {
                     <div className="space-y-3">
                         {appointments.map((appointment) => (
                             <div key={appointment.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                                <div className="flex justify-between items-start mb-2">
-                                    <div>
-                                        <h3 className="font-semibold text-gray-800 dark:text-white">
+                                <div className="flex justify-between items-start mb-3">
+                                    <div className="flex-1">
+                                        <h3 className="font-semibold text-gray-800 dark:text-white mb-2">
                                             {appointment.patientName}
                                         </h3>
-                                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                                            {appointment.phone}
-                                        </p>
+                                        <div className="space-y-1">
+                                            <p className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                                                <FaPhone className="text-green-500 text-xs" />
+                                                {appointment.phone}
+                                            </p>
+                                            <p className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                                                <FaEnvelope className="text-blue-500 text-xs" />
+                                                {appointment.email}
+                                            </p>
+                                        </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-sm font-medium text-gray-800 dark:text-white">
+                                        <p className="text-sm font-medium text-gray-800 dark:text-white mb-1">
                                             {appointment.time}
                                         </p>
-                                        <span className="text-xs px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full">
+                                        <span className={`text-xs px-2 py-1 rounded-full ${
+                                            appointment.status.toLowerCase() === 'accepted' || appointment.status.toLowerCase() === 'confirmed'
+                                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                                : appointment.status.toLowerCase() === 'pending'
+                                                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                                    : appointment.status.toLowerCase() === 'completed'
+                                                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                                        }`}>
                                             {appointment.status}
                                         </span>
                                     </div>
@@ -210,7 +178,6 @@ const TodaysAppointments = () => {
                                     <strong>Reason:</strong> {appointment.reason}
                                 </p>
 
-                                {/* Show Mark Complete button only for confirmed appointments */}
                                 {appointment.status.toLowerCase() === 'accepted' || appointment.status.toLowerCase() === 'confirmed' ? (
                                     <button
                                         onClick={() => markComplete(appointment.id)}

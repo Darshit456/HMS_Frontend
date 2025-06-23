@@ -4,10 +4,11 @@ import axios from "axios";
 const API_URL = "https://localhost:7195/api/Appointment";
 const PATIENT_API_URL = "https://localhost:7195/api/Patient";
 
-// Helper function to get patient details
+// Get patient details by ID
 const getPatientDetails = async (patientId, token) => {
     try {
-        console.log(`Fetching patient details for ID: ${patientId}`);
+        console.log(`=== FETCHING PATIENT DETAILS FOR ID: ${patientId} ===`);
+        console.log(`API URL: ${PATIENT_API_URL}/${patientId}`);
 
         const response = await axios.get(`${PATIENT_API_URL}/${patientId}`, {
             headers: {
@@ -16,15 +17,28 @@ const getPatientDetails = async (patientId, token) => {
             }
         });
 
-        console.log(`Patient ${patientId} details:`, response.data);
-        return response.data;
+        console.log(`Patient ${patientId} API response:`, response.data);
+        console.log(`Patient ${patientId} available keys:`, Object.keys(response.data));
+
+        const patient = response.data;
+        const result = {
+            phone: patient.phone || patient.Phone || 'Phone not available',
+            email: patient.email || patient.Email || 'Email not available'
+        };
+
+        console.log(`Patient ${patientId} extracted details:`, result);
+        return result;
+
     } catch (error) {
-        console.error(`Failed to get patient ${patientId} details:`, error);
+        console.error(`=== FAILED TO GET PATIENT ${patientId} DETAILS ===`);
+        console.error('Error status:', error.response?.status);
+        console.error('Error data:', error.response?.data);
+        console.error('Error message:', error.message);
+        console.error('Full error:', error);
+
         return {
-            firstName: 'Unknown',
-            lastName: 'Patient',
-            phone: 'N/A',
-            email: 'N/A'
+            phone: 'Phone fetch failed',
+            email: 'Email fetch failed'
         };
     }
 };
@@ -43,10 +57,9 @@ export const getDoctorAppointments = async () => {
 
         console.log("Fetching appointments for doctor ID:", doctorID);
 
-        // Try different possible endpoints based on your backend structure
+        // Get appointments
         let response;
         try {
-            // First try: /api/Appointment/doctor/{doctorId}
             response = await axios.get(`${API_URL}/doctor/${doctorID}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -55,7 +68,6 @@ export const getDoctorAppointments = async () => {
             });
         } catch (error) {
             if (error.response?.status === 404) {
-                // Second try: /api/Appointment?doctorId={doctorId}
                 response = await axios.get(`${API_URL}?doctorId=${doctorID}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -67,11 +79,39 @@ export const getDoctorAppointments = async () => {
             }
         }
 
-        console.log("Doctor appointments response:", response.data);
+        console.log("Appointments response:", response.data);
 
-        // Your API already returns patient names! Just return the data as-is
-        console.log("Returning raw API data without transformation");
-        return response.data;
+        // Now enhance each appointment with patient details
+        const appointmentsWithPatientDetails = await Promise.all(
+            response.data.map(async (appointment) => {
+                console.log("Processing appointment:", appointment);
+
+                // Get PatientID from appointment response
+                const patientId = appointment.patientID;
+
+                if (patientId) {
+                    // Fetch patient details
+                    const patientDetails = await getPatientDetails(patientId, token);
+
+                    // Combine appointment with patient details
+                    return {
+                        ...appointment,
+                        patientPhone: patientDetails.phone,
+                        patientEmail: patientDetails.email
+                    };
+                } else {
+                    console.warn("No PatientID found in appointment:", appointment);
+                    return {
+                        ...appointment,
+                        patientPhone: 'PatientID not found',
+                        patientEmail: 'PatientID not found'
+                    };
+                }
+            })
+        );
+
+        console.log("Appointments with patient details:", appointmentsWithPatientDetails);
+        return appointmentsWithPatientDetails;
 
     } catch (error) {
         console.error("Error fetching doctor appointments:", error);
@@ -85,10 +125,8 @@ export const updateAppointmentStatus = async (appointmentId, status) => {
 
         console.log("Updating appointment status:", appointmentId, "to", status);
 
-        // Try different possible endpoints for updating appointment status
         let response;
         try {
-            // First try: PUT /api/Appointment/{id}/status
             response = await axios.put(
                 `${API_URL}/${appointmentId}/status`,
                 { status: status },
@@ -101,7 +139,6 @@ export const updateAppointmentStatus = async (appointmentId, status) => {
             );
         } catch (error) {
             if (error.response?.status === 404) {
-                // Second try: PATCH /api/Appointment/{id}
                 const patchOperations = [{
                     "operationType": 0,
                     "path": "/Status",
@@ -129,27 +166,6 @@ export const updateAppointmentStatus = async (appointmentId, status) => {
 
     } catch (error) {
         console.error("Error updating appointment status:", error);
-        throw error;
-    }
-};
-
-export const getTodayAppointments = async () => {
-    try {
-        // Get all appointments and filter for today in frontend
-        const allAppointments = await getDoctorAppointments();
-
-        // Filter for today's appointments
-        const today = new Date().toDateString();
-        const todayAppointments = allAppointments.filter(appointment => {
-            const appointmentDate = new Date(appointment.appointmentDateTime).toDateString();
-            return appointmentDate === today;
-        });
-
-        console.log("Today's appointments:", todayAppointments);
-        return todayAppointments;
-
-    } catch (error) {
-        console.error("Error fetching today's appointments:", error);
         throw error;
     }
 };
