@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import DoctorProfileSection from "../../dashboard/Doctor/DoctorProfileSection.jsx";
 import TodaysAppointments from "../../dashboard/Doctor/TodaysAppointments.jsx";
+import PatientRequestsSection from "../../dashboard/Doctor/PatientRequestsSection.jsx";
 
 const DoctorDashboard = () => {
     const [doctorName, setDoctorName] = useState("");
@@ -21,19 +22,26 @@ const DoctorDashboard = () => {
             </h5>
 
             <div className="grid grid-cols-12 gap-4 h-[75%]">
-                {/* Doctor Profile Section - Now Real Component */}
+                {/* Doctor Profile Section */}
                 <div className="col-span-3">
                     <DoctorProfileSection />
                 </div>
 
-                {/* Today's Appointments - Clean New Component */}
-                <div className="col-span-6 overflow-hidden">
+                {/* Today's Appointments */}
+                <div className="col-span-5 overflow-hidden">
                     <div className="h-full">
                         <TodaysAppointments />
                     </div>
                 </div>
 
-                {/* Notifications - Placeholder */}
+                {/* Patient Requests - BIGGER SECTION */}
+                <div className="col-span-4 overflow-hidden">
+                    <div className="h-full">
+                        <PatientRequestsSection />
+                    </div>
+                </div>
+
+                {/* Notifications - Smaller */}
                 <div className="col-span-3">
                     <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full">
                         <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Notifications</h2>
@@ -43,7 +51,7 @@ const DoctorDashboard = () => {
                     </div>
                 </div>
 
-                {/* My Patients - Placeholder */}
+                {/* My Patients */}
                 <div className="col-span-4 overflow-hidden">
                     <div className="h-full">
                         <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex flex-col">
@@ -55,25 +63,13 @@ const DoctorDashboard = () => {
                     </div>
                 </div>
 
-                {/* Schedule Management - Placeholder */}
-                <div className="col-span-4 overflow-hidden">
+                {/* Schedule Management */}
+                <div className="col-span-5 overflow-hidden">
                     <div className="h-full">
                         <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex-col">
                             <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Schedule</h2>
                             <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
                                 Schedule Section Coming Soon...
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Patient Requests - Placeholder */}
-                <div className="col-span-4 overflow-hidden">
-                    <div className="h-full">
-                        <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex flex-col">
-                            <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Patient Requests</h2>
-                            <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                                Requests Section Coming Soon...
                             </div>
                         </div>
                     </div>
