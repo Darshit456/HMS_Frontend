@@ -180,8 +180,12 @@ const PatientRequestsSection = () => {
 
             <div className="overflow-y-auto flex-1 custom-scroll">
                 {pendingRequests.length === 0 ? (
-                    <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                        No pending requests
+                    <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                        <div className="text-6xl mb-4 opacity-50">📋</div>
+                        <h3 className="text-lg font-medium mb-2 text-gray-600 dark:text-gray-300">No Pending Requests</h3>
+                        <p className="text-sm text-center">
+                            Patient requests will appear here when submitted
+                        </p>
                     </div>
                 ) : (
                     <div className="space-y-3">
