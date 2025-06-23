@@ -43,11 +43,13 @@ const TodaysAppointments = () => {
         }
     };
 
-    // Fetch and filter today's appointments
+    // Fetch and filter today's ACCEPTED appointments only
     const fetchTodaysAppointments = async () => {
         try {
             setLoading(true);
             setError("");
+
+            console.log("=== FETCHING TODAY'S ACCEPTED APPOINTMENTS ===");
 
             const allAppointments = await getDoctorAppointments();
             console.log("API Response:", allAppointments);
@@ -57,19 +59,36 @@ const TodaysAppointments = () => {
                 return;
             }
 
-            // Filter for today's appointments
+            // Get today's date
             const today = new Date();
-            const todaysAppointments = allAppointments.filter(appointment => {
+            console.log("Today's date:", today.toDateString());
+
+            // Filter for today's appointments that are ACCEPTED only
+            const todaysAcceptedAppointments = allAppointments.filter(appointment => {
                 try {
                     const appointmentDate = new Date(appointment.dateTime);
-                    return appointmentDate.toDateString() === today.toDateString();
+                    const isTodayAppointment = appointmentDate.toDateString() === today.toDateString();
+                    const isAccepted = appointment.status && appointment.status.toLowerCase() === 'accepted';
+
+                    console.log(`Appointment ${appointment.token}:`, {
+                        date: appointmentDate.toDateString(),
+                        isToday: isTodayAppointment,
+                        status: appointment.status,
+                        isAccepted: isAccepted,
+                        shouldInclude: isTodayAppointment && isAccepted
+                    });
+
+                    return isTodayAppointment && isAccepted;
                 } catch (error) {
+                    console.error("Error processing appointment:", appointment, error);
                     return false;
                 }
             });
 
+            console.log("Filtered today's accepted appointments:", todaysAcceptedAppointments);
+
             // Transform to display format
-            const transformedAppointments = todaysAppointments.map((appointment, index) => ({
+            const transformedAppointments = todaysAcceptedAppointments.map((appointment, index) => ({
                 id: appointment.token || index,
                 patientName: appointment.patientName || 'Unknown Patient',
                 time: formatTime(appointment.dateTime),
@@ -79,6 +98,7 @@ const TodaysAppointments = () => {
                 email: appointment.patientEmail || 'Email not available'
             }));
 
+            console.log("Final transformed appointments:", transformedAppointments);
             setAppointments(transformedAppointments);
 
         } catch (err) {
@@ -129,17 +149,26 @@ const TodaysAppointments = () => {
         <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-md h-full flex flex-col">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-800 dark:text-white">
                 <FaCalendarCheck className="text-green-500" /> Today's Appointments
+                {appointments.length > 0 && (
+                    <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                        {appointments.length}
+                    </span>
+                )}
             </h2>
 
             <div className="overflow-y-auto flex-1 custom-scroll">
                 {appointments.length === 0 ? (
-                    <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                        No appointments today
+                    <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                        <div className="text-6xl mb-4 opacity-50">📅</div>
+                        <h3 className="text-lg font-medium mb-2 text-gray-600 dark:text-gray-300">No Accepted Appointments Today</h3>
+                        <p className="text-sm text-center">
+                            Accepted appointments for today will appear here
+                        </p>
                     </div>
                 ) : (
                     <div className="space-y-3">
                         {appointments.map((appointment) => (
-                            <div key={appointment.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                            <div key={appointment.id} className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
                                 <div className="flex justify-between items-start mb-3">
                                     <div className="flex-1">
                                         <h3 className="font-semibold text-gray-800 dark:text-white mb-2">
@@ -160,38 +189,27 @@ const TodaysAppointments = () => {
                                         <p className="text-sm font-medium text-gray-800 dark:text-white mb-1">
                                             {appointment.time}
                                         </p>
-                                        <span className={`text-xs px-2 py-1 rounded-full ${
-                                            appointment.status.toLowerCase() === 'accepted' || appointment.status.toLowerCase() === 'confirmed'
-                                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                                : appointment.status.toLowerCase() === 'pending'
-                                                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                                                    : appointment.status.toLowerCase() === 'completed'
-                                                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-                                        }`}>
-                                            {appointment.status}
+                                        <span className="text-xs px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full">
+                                            ✅ Accepted
                                         </span>
                                     </div>
                                 </div>
 
-                                <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                                    <strong>Reason:</strong> {appointment.reason}
-                                </p>
+                                <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                                        <strong>Reason for Visit:</strong> {appointment.reason}
+                                    </p>
+                                </div>
 
-                                {appointment.status.toLowerCase() === 'accepted' || appointment.status.toLowerCase() === 'confirmed' ? (
-                                    <button
-                                        onClick={() => markComplete(appointment.id)}
-                                        disabled={updating === appointment.id}
-                                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 flex items-center justify-center gap-2"
-                                    >
-                                        <FaClock className="text-sm" />
-                                        {updating === appointment.id ? 'Marking Complete...' : 'Mark as Complete'}
-                                    </button>
-                                ) : (
-                                    <div className="text-center text-sm text-gray-500 dark:text-gray-400 py-2">
-                                        Status: {appointment.status}
-                                    </div>
-                                )}
+                                {/* Mark Complete Button */}
+                                <button
+                                    onClick={() => markComplete(appointment.id)}
+                                    disabled={updating === appointment.id}
+                                    className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 flex items-center justify-center gap-2 text-sm font-semibold"
+                                >
+                                    <FaClock className="text-sm" />
+                                    {updating === appointment.id ? 'Marking Complete...' : 'Mark as Complete'}
+                                </button>
                             </div>
                         ))}
                     </div>
