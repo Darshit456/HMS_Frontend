@@ -19,10 +19,14 @@ const PatientDashboard = () => {
 
     return (
         <div className="h-screen w-full overflow-hidden bg-gray-100 dark:bg-gray-900 p-2 sm:p-4 flex flex-col">
-            <h5 className="text-lg sm:text-xl lg:text-2xl font-bold text-center text-blue-600 dark:text-blue-400 mb-2 sm:mb-4">
-                Welcome {userName}! 😊
-            </h5>
-
+            <div className="text-center mb-4">
+                <h5 className="text-2xl font-bold text-gray-800 dark:text-cyan-300 mb-1">
+                    Welcome back, {userName}! 👋
+                </h5>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Your Health Dashboard - Manage your care with confidence
+                </p>
+            </div>
             {/* Single View Grid Layout - Same as Doctor */}
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-4 min-h-0">
                 {/* Top Row - Main Content */}

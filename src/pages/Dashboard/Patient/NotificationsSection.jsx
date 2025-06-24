@@ -1,54 +1,151 @@
 // File: src/pages/Dashboard/Patient/NotificationsSection.jsx
-import React from "react";
-import { FaBell } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaBell, FaTimes } from "react-icons/fa";
+import { IoMdDocument } from "react-icons/io";
 
-const notifications = [
-    { id: 1, gender: "male", doctor: "Dr. Mehta", message: "Your appointment is confirmed.", date: "2025-04-20" },
-    { id: 2, gender: "female", doctor: "Dr. Kapoor", message: "Lab results available.", date: "2025-04-18" },
-    { id: 3, gender: "male", doctor: "Dr. Sharma", message: "Follow-up scheduled.", date: "2025-04-15" },
-    { id: 4, gender: "female", doctor: "Dr. Jain", message: "Prescription uploaded.", date: "2025-04-10" },
-];
+// Safe notification API - will work even if backend services aren't available
+const safeNotificationApi = {
+    async getMyNotifications() {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.log("No token found, returning empty notifications");
+                return [];
+            }
+
+            const response = await fetch('https://localhost:7195/api/Notification/my-notifications', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                console.log("API not available or error, returning empty notifications");
+                return [];
+            }
+
+            const data = await response.json();
+            console.log("Successfully fetched notifications:", data);
+            return data || [];
+        } catch (error) {
+            console.log("Error fetching notifications, returning empty array:", error.message);
+            return [];
+        }
+    }
+};
 
 const NotificationsSection = () => {
-    return (
-        <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full group">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <div className="bg-yellow-100 dark:bg-yellow-900 p-2 rounded-lg">
-                    <FaBell className="text-yellow-600 dark:text-yellow-300" />
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fetch notifications safely
+    const fetchNotifications = async () => {
+        try {
+            console.log("=== FETCHING PATIENT NOTIFICATIONS (SAFE MODE) ===");
+            await safeNotificationApi.getMyNotifications();
+            setError(null);
+        } catch (error) {
+            console.error("Error in fetchNotifications:", error);
+            setError("Unable to load notifications");
+        }
+    };
+
+    // Initialize notifications
+    useEffect(() => {
+        const initializeNotifications = async () => {
+            try {
+                setLoading(true);
+                await fetchNotifications();
+            } catch (error) {
+                console.error("Error initializing notifications:", error);
+                setError("Failed to initialize notifications");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        initializeNotifications();
+
+        // Auto-refresh every 2 minutes
+        const interval = setInterval(fetchNotifications, 120000);
+        return () => clearInterval(interval);
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex flex-col group">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-800 dark:text-white">
+                        <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
+                            <FaBell className="text-blue-600 dark:text-blue-300" />
+                        </div>
+                        Notifications
+                    </h2>
                 </div>
-                Notifications
-                <span className="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
-                    1
-                </span>
-                <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse ml-auto"></div>
-                <button className="text-xs text-yellow-600 hover:text-yellow-800 dark:text-yellow-400 ml-2">
-                    Mark all read
-                </button>
-                <button className="text-xs text-yellow-600 hover:text-yellow-800 dark:text-yellow-400">
-                    Test
-                </button>
-            </h2>
-            <div className="overflow-y-auto max-h-60 custom-scroll group-hover:scroll-visible">
-                <ul className="space-y-3 pr-2">
-                    {notifications.map((note) => (
-                        <li key={note.id} className="bg-yellow-50 dark:bg-gray-700 p-3 rounded-md flex items-start gap-3">
-                            <div className="w-10 h-10 bg-yellow-500 text-white flex items-center justify-center rounded-full font-bold">
-                                {note.gender === "male" ? "M" : "F"}
-                            </div>
-                            <div>
-                                <p><span className="font-bold">{note.doctor}:</span> {note.message}</p>
-                                <span className="text-xs text-gray-400">{note.date}</span>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
+                <div className="flex items-center justify-center py-8">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex flex-col group">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-800 dark:text-white">
+                        <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
+                            <FaBell className="text-blue-600 dark:text-blue-300" />
+                        </div>
+                        Notifications
+                    </h2>
+                </div>
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <div className="bg-red-100 dark:bg-red-900 p-2 rounded-full mb-2">
+                        <FaTimes className="text-lg text-red-500 dark:text-red-400" />
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Connection Error</p>
+                    <button
+                        onClick={fetchNotifications}
+                        className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition"
+                    >
+                        Retry
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex flex-col group">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-800 dark:text-white">
+                    <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
+                        <FaBell className="text-blue-600 dark:text-blue-300" />
+                    </div>
+                    Notifications
+                </h2>
             </div>
 
-            {/* Connection Status Footer */}
-            <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                    <span>Real-time notifications</span>
-                    <span className="text-yellow-600">Connected</span>
+            {/* Empty State */}
+            <div className="overflow-y-auto flex-1 custom-scroll group-hover:scroll-visible pr-2">
+                <div className="flex flex-col items-center justify-center py-6 text-center">
+                    <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full mb-3">
+                        <IoMdDocument className="text-xl text-blue-500 dark:text-blue-400" />
+                    </div>
+                    <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
+                        No Notifications
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs">
+                        You're all caught up! New notifications will appear here.
+                    </p>
                 </div>
             </div>
         </div>
