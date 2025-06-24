@@ -1,140 +1,129 @@
-// File: src/pages/dashboard/Doctor/NotificationsSection.jsx
-import React, { useState, useEffect } from "react";
-import { FaBell, FaCheck, FaTimes, FaCalendarAlt, FaUserMd, FaExclamationTriangle, FaClock, FaTools } from "react-icons/fa";
-import { notificationApi } from "../../../services/Doctor/notificationApi";
-import { signalRService } from "../../../services/Doctor/signalRService";
+// File: src/pages/Dashboard/Doctor/NotificationsSection.jsx
+import React, { useState } from "react";
+import { FaBell, FaCheck, FaTimes, FaCalendarAlt, FaClock, FaExclamationTriangle, FaTools, FaFlask, FaCheckDouble, FaTrash } from "react-icons/fa";
 
 const NotificationsSection = () => {
-    const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [connectionStatus, setConnectionStatus] = useState('Disconnected');
-
-    // Fetch notifications from API
-    const fetchNotifications = async () => {
-        try {
-            const data = await notificationApi.getMyNotifications();
-            console.log("Fetched notifications:", data);
-            setNotifications(data);
-        } catch (error) {
-            console.error("Error fetching notifications:", error);
+    // Dummy notifications data
+    const [notifications, setNotifications] = useState([
+        {
+            Id: 1,
+            Title: 'New Appointment Request',
+            Message: 'Sarah Johnson has requested an appointment for tomorrow at 2:00 PM',
+            NotificationType: 'new_appointment',
+            Priority: 'normal',
+            Icon: '📅',
+            IsRead: false,
+            CreatedAt: new Date().toISOString(),
+            PatientName: 'Sarah Johnson'
+        },
+        {
+            Id: 2,
+            Title: 'Appointment Confirmed',
+            Message: 'Your appointment with Michael Chen has been confirmed for June 25, 2025',
+            NotificationType: 'appointment_status_change',
+            Priority: 'high',
+            Icon: '✅',
+            IsRead: false,
+            CreatedAt: new Date(Date.now() - 3600000).toISOString(),
+            PatientName: 'Michael Chen'
+        },
+        {
+            Id: 3,
+            Title: 'Lab Results Available',
+            Message: 'Lab results for Emma Davis are now available for review',
+            NotificationType: 'lab_results',
+            Priority: 'normal',
+            Icon: '🧪',
+            IsRead: true,
+            CreatedAt: new Date(Date.now() - 7200000).toISOString(),
+            PatientName: 'Emma Davis'
+        },
+        {
+            Id: 4,
+            Title: 'Urgent: Emergency Consultation',
+            Message: 'Emergency consultation requested by Robert Wilson',
+            NotificationType: 'emergency_appointment',
+            Priority: 'urgent',
+            Icon: '🚨',
+            IsRead: false,
+            CreatedAt: new Date(Date.now() - 10800000).toISOString(),
+            PatientName: 'Robert Wilson'
+        },
+        {
+            Id: 5,
+            Title: 'Medication Refill Request',
+            Message: 'Lisa Anderson has requested a medication refill',
+            NotificationType: 'medication_refill',
+            Priority: 'normal',
+            Icon: '💊',
+            IsRead: true,
+            CreatedAt: new Date(Date.now() - 14400000).toISOString(),
+            PatientName: 'Lisa Anderson'
         }
-    };
+    ]);
 
-    // Initialize SignalR and fetch notifications
-    const initializeNotifications = async () => {
-        try {
-            setLoading(true);
-
-            // Fetch existing notifications
-            await fetchNotifications();
-
-            // Initialize SignalR connection
-            const connected = await signalRService.initialize();
-
-            if (connected) {
-                // Subscribe to connection status changes
-                signalRService.onConnectionStatusChange((status) => {
-                    setConnectionStatus(status);
-                });
-
-                // Subscribe to new notifications
-                signalRService.onNotification((notification) => {
-                    setNotifications(prev => [notification, ...prev]);
-                });
-
-                setConnectionStatus('Connected');
-            }
-        } catch (error) {
-            console.error("Error initializing notifications:", error);
-            setConnectionStatus('Error');
-        } finally {
-            setLoading(false);
-        }
-    };
+    // const [connectionStatus] = useState('Connected'); // Commented out unused variable
 
     // Mark notification as read
-    const markAsRead = async (notificationId) => {
-        try {
-            await notificationApi.markAsRead(notificationId);
-            setNotifications(prev =>
-                prev.map(notification =>
-                    notification.Id === notificationId
-                        ? { ...notification, IsRead: true }
-                        : notification
-                )
-            );
-        } catch (error) {
-            console.error("Error marking notification as read:", error);
-        }
+    const markAsRead = (notificationId) => {
+        setNotifications(prev =>
+            prev.map(notification =>
+                notification.Id === notificationId
+                    ? { ...notification, IsRead: true }
+                    : notification
+            )
+        );
     };
 
     // Mark all as read
-    const markAllAsRead = async () => {
-        try {
-            await notificationApi.markAllAsRead();
-            setNotifications(prev =>
-                prev.map(notification => ({ ...notification, IsRead: true }))
-            );
-        } catch (error) {
-            console.error("Error marking all notifications as read:", error);
-        }
+    const markAllAsRead = () => {
+        setNotifications(prev =>
+            prev.map(notification => ({ ...notification, IsRead: true }))
+        );
     };
 
     // Clear all notifications
-    const clearAllNotifications = async () => {
-        try {
-            await notificationApi.clearAllNotifications();
-            setNotifications([]);
-        } catch (error) {
-            console.error("Error clearing notifications:", error);
-        }
+    const clearAllNotifications = () => {
+        setNotifications([]);
     };
 
     // Send test notification
-    const sendTestNotification = async () => {
-        try {
-            await notificationApi.sendTestNotification("🧪 Test notification from Doctor Dashboard!");
-            console.log("✅ Test notification sent!");
-        } catch (error) {
-            console.error("❌ Error sending test notification:", error);
-            alert("Error sending test notification: " + error.message);
-        }
+    const sendTestNotification = () => {
+        const newNotification = {
+            Id: Date.now(),
+            Title: 'Test Notification',
+            Message: '🧪 This is a test notification from Doctor Dashboard!',
+            NotificationType: 'test',
+            Priority: 'normal',
+            Icon: '🧪',
+            IsRead: false,
+            CreatedAt: new Date().toISOString(),
+            PatientName: 'Test Patient'
+        };
+        setNotifications(prev => [newNotification, ...prev]);
     };
 
     // Get icon component for notification type
     const getNotificationIcon = (type, icon) => {
-        if (icon) return <span className="text-lg">{icon}</span>;
+        if (icon) return <span className="text-sm">{icon}</span>;
 
         switch (type) {
             case 'new_appointment':
-                return <FaCalendarAlt className="text-blue-500" />;
+                return <FaCalendarAlt className="text-blue-500 text-sm" />;
             case 'appointment_status_change':
-                return <FaCheck className="text-green-500" />;
+                return <FaCheck className="text-green-500 text-sm" />;
             case 'appointment_cancelled':
-                return <FaTimes className="text-red-500" />;
+                return <FaTimes className="text-red-500 text-sm" />;
             case 'appointment_reminder':
-                return <FaClock className="text-orange-500" />;
+                return <FaClock className="text-orange-500 text-sm" />;
             case 'emergency_appointment':
-                return <FaExclamationTriangle className="text-red-600" />;
+                return <FaExclamationTriangle className="text-red-600 text-sm" />;
             case 'system_update':
-                return <FaTools className="text-purple-500" />;
+                return <FaTools className="text-purple-500 text-sm" />;
             case 'test':
-                return <span className="text-lg">🧪</span>;
+                return <span className="text-sm">🧪</span>;
             default:
-                return <FaBell className="text-gray-500" />;
-        }
-    };
-
-    // Get priority styling
-    const getPriorityStyle = (priority) => {
-        switch (priority) {
-            case 'urgent':
-                return 'border-l-red-600 bg-red-50 dark:bg-red-900/20';
-            case 'high':
-                return 'border-l-orange-500 bg-orange-50 dark:bg-orange-900/20';
-            case 'normal':
-            default:
-                return 'border-l-blue-500 bg-blue-50 dark:bg-blue-900/20';
+                return <FaBell className="text-gray-500 text-sm" />;
         }
     };
 
@@ -145,176 +134,137 @@ const NotificationsSection = () => {
         const diffInMinutes = Math.floor((now - date) / (1000 * 60));
 
         if (diffInMinutes < 1) return 'Just now';
-        if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
-        if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hours ago`;
+        if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+        if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
         return date.toLocaleDateString();
     };
 
-    // Initialize on component mount
-    useEffect(() => {
-        initializeNotifications();
-
-        // Cleanup on unmount
-        return () => {
-            signalRService.stop();
-        };
-    }, []);
-
     const unreadCount = notifications.filter(n => !n.IsRead).length;
 
-    if (loading) {
-        return (
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-md h-full flex flex-col">
-                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-800 dark:text-white">
-                    <FaBell className="text-yellow-500" /> Notifications
-                </h2>
-                <div className="flex items-center justify-center h-full">
-                    <div className="text-gray-500 dark:text-gray-400">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                        Connecting to notifications...
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-md h-full flex flex-col">
+        <div className="bg-slate-800 rounded-xl p-3 h-full flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-800 dark:text-white">
-                        <FaBell className="text-yellow-500" /> Notifications
-                        {unreadCount > 0 && (
-                            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
-                                {unreadCount}
-                            </span>
-                        )}
-                    </h2>
-
-                    {/* Connection Status */}
-                    <div className={`w-2 h-2 rounded-full ${
-                        connectionStatus === 'Connected' ? 'bg-green-500' :
-                            connectionStatus === 'Reconnecting' ? 'bg-yellow-500 animate-pulse' :
-                                'bg-red-500'
-                    }`} title={`SignalR: ${connectionStatus}`}></div>
+                    <FaBell className="text-yellow-500 text-sm" />
+                    <h2 className="text-white text-lg font-medium">Notifications</h2>
+                    {unreadCount > 0 && (
+                        <span className="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full text-xs">
+                            {unreadCount}
+                        </span>
+                    )}
                 </div>
 
-                <div className="flex gap-2">
-                    {/* Test Notification Button */}
+                <div className="flex gap-1">
                     <button
                         onClick={sendTestNotification}
-                        className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 rounded"
+                        className="text-blue-400 hover:text-blue-300 p-1.5 bg-slate-700 rounded hover:bg-slate-600 transition"
                         title="Send test notification"
                     >
-                        🧪 Test
+                        <FaFlask className="text-xs" />
                     </button>
 
                     {unreadCount > 0 && (
                         <button
                             onClick={markAllAsRead}
-                            className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400"
+                            className="text-green-400 hover:text-green-300 p-1.5 hover:bg-slate-700 rounded transition"
+                            title="Mark all as read"
                         >
-                            Mark all read
+                            <FaCheckDouble className="text-xs" />
                         </button>
                     )}
 
                     {notifications.length > 0 && (
                         <button
                             onClick={clearAllNotifications}
-                            className="text-xs text-red-600 hover:text-red-800 dark:text-red-400"
+                            className="text-red-400 hover:text-red-300 p-1.5 hover:bg-slate-700 rounded transition"
+                            title="Clear all notifications"
                         >
-                            Clear all
+                            <FaTrash className="text-xs" />
                         </button>
                     )}
                 </div>
             </div>
 
             {/* Notifications List */}
-            <div className="overflow-y-auto flex-1 custom-scroll">
+            <div className="overflow-y-auto flex-1 space-y-2">
                 {notifications.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                        <div className="text-6xl mb-4 opacity-50">
-                            {connectionStatus === 'Connected' ? '🔔' : '📡'}
-                        </div>
-                        <h3 className="text-lg font-medium mb-2 text-gray-600 dark:text-gray-300">
-                            {connectionStatus === 'Connected' ? 'No notifications' : 'Connection issue'}
+                    <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                        <div className="text-4xl mb-2 opacity-50">🔔</div>
+                        <h3 className="text-sm font-medium mb-2 text-gray-300">
+                            No notifications
                         </h3>
-                        <p className="text-sm text-center mb-4">
-                            {connectionStatus === 'Connected'
-                                ? 'Real-time notifications will appear here'
-                                : `Status: ${connectionStatus}`
-                            }
+                        <p className="text-xs text-center mb-4">
+                            Medical notifications will appear here
                         </p>
-                        {connectionStatus === 'Connected' && (
-                            <button
-                                onClick={sendTestNotification}
-                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                            >
-                                🧪 Send Test Notification
-                            </button>
-                        )}
+                        <button
+                            onClick={sendTestNotification}
+                            className="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition text-sm flex items-center gap-1"
+                        >
+                            <FaFlask className="text-xs" /> Send Test
+                        </button>
                     </div>
                 ) : (
-                    <div className="space-y-3">
-                        {notifications.map((notification) => (
-                            <div
-                                key={notification.Id}
-                                className={`p-3 rounded-lg cursor-pointer transition-all hover:shadow-md border-l-4 ${
-                                    !notification.IsRead
-                                        ? getPriorityStyle(notification.Priority)
-                                        : 'bg-gray-50 dark:bg-gray-700 border-l-gray-300'
-                                }`}
-                                onClick={() => markAsRead(notification.Id)}
-                            >
-                                <div className="flex items-start gap-3">
-                                    <div className={`p-2 rounded-full flex-shrink-0 ${
-                                        !notification.IsRead ? 'bg-white/50' : 'bg-gray-200 dark:bg-gray-600'
-                                    }`}>
-                                        {getNotificationIcon(notification.NotificationType, notification.Icon)}
-                                    </div>
+                    notifications.map((notification) => (
+                        <div
+                            key={notification.Id}
+                            className={`p-2 rounded-lg cursor-pointer transition-all hover:bg-slate-700 ${
+                                !notification.IsRead
+                                    ? 'bg-slate-700 border-l-2 border-blue-500'
+                                    : 'bg-slate-750 border-l-2 border-gray-600'
+                            }`}
+                            onClick={() => markAsRead(notification.Id)}
+                        >
+                            <div className="flex items-start gap-2">
+                                <div className="p-1 rounded flex-shrink-0">
+                                    {getNotificationIcon(notification.NotificationType, notification.Icon)}
+                                </div>
 
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <h4 className={`text-sm font-medium truncate ${
-                                                !notification.IsRead
-                                                    ? 'text-gray-900 dark:text-white'
-                                                    : 'text-gray-700 dark:text-gray-300'
-                                            }`}>
-                                                {notification.Title || 'Notification'}
-                                            </h4>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <h4 className={`font-medium truncate ${
+                                            !notification.IsRead
+                                                ? 'text-white'
+                                                : 'text-gray-300'
+                                        }`}>
+                                            {notification.Title}
+                                        </h4>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs text-gray-400">
+                                                {formatTime(notification.CreatedAt)}
+                                            </span>
                                             {!notification.IsRead && (
                                                 <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
                                             )}
                                         </div>
+                                    </div>
 
-                                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
-                                            {notification.Message}
-                                        </p>
+                                    <p className="text-xs text-gray-400 mb-1 line-clamp-2">
+                                        {notification.Message}
+                                    </p>
 
-                                        <p className="text-xs text-gray-500 dark:text-gray-500">
-                                            {formatTime(notification.CreatedAt)}
-                                        </p>
+                                    <div className="flex items-center justify-between">
+                                        {notification.PatientName && (
+                                            <span className="text-xs text-blue-400">
+                                                {notification.PatientName}
+                                            </span>
+                                        )}
+
+                                        {notification.Priority && notification.Priority !== 'normal' && (
+                                            <span className={`text-xs px-2 py-1 rounded-full ${
+                                                notification.Priority === 'urgent' ? 'bg-red-900 text-red-300' :
+                                                    notification.Priority === 'high' ? 'bg-orange-900 text-orange-300' :
+                                                        'bg-gray-700 text-gray-300'
+                                            }`}>
+                                                {notification.Priority}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))
                 )}
-            </div>
-
-            {/* Connection Status Footer */}
-            <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                    <span>Real-time notifications</span>
-                    <span className={`${
-                        connectionStatus === 'Connected' ? 'text-green-600' :
-                            connectionStatus === 'Reconnecting' ? 'text-yellow-600' :
-                                'text-red-600'
-                    }`}>
-                        {connectionStatus}
-                    </span>
-                </div>
             </div>
         </div>
     );
