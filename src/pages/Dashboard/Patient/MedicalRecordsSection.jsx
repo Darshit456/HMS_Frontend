@@ -325,7 +325,7 @@ const MedicalRecordsSection = () => {
                         <div className="bg-gray-50 dark:bg-gray-700 p-6 border-t border-gray-200 dark:border-gray-600">
                             <button
                                 onClick={closeRecordDetail}
-                                className="w-full bg-gray-500 hover:bg-gray-600 text-white py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 font-semibold"
+                                className="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 font-semibold"
                             >
                                 Close
                             </button>
