@@ -129,7 +129,10 @@ const MedicalRecordsSection = () => {
         return (
             <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex flex-col group">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <FaFileMedical className="text-red-500" /> Medical Records
+                    <div className="bg-red-100 dark:bg-red-900 p-2 rounded-lg">
+                        <FaFileMedical className="text-red-600 dark:text-red-300" />
+                    </div>
+                    Medical Records
                 </h2>
                 <div className="overflow-y-auto flex-1 custom-scroll group-hover:scroll-visible pr-2">
                     <div className="flex items-center justify-center h-full">
@@ -165,7 +168,10 @@ const MedicalRecordsSection = () => {
         <>
             <div className="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-2xl shadow-md h-full flex flex-col group">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <FaFileMedical className="text-red-500" /> Medical Records
+                    <div className="bg-red-100 dark:bg-red-900 p-2 rounded-lg">
+                        <FaFileMedical className="text-red-600 dark:text-red-300" />
+                    </div>
+                    Medical Records
                     {medicalRecords.length > 0 && (
                         <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
                             {medicalRecords.length}
@@ -319,7 +325,7 @@ const MedicalRecordsSection = () => {
                         <div className="bg-gray-50 dark:bg-gray-700 p-6 border-t border-gray-200 dark:border-gray-600">
                             <button
                                 onClick={closeRecordDetail}
-                                className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 font-semibold shadow-lg hover:shadow-xl"
+                                className="w-full bg-gray-500 hover:bg-gray-600 text-white py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 font-semibold"
                             >
                                 Close
                             </button>

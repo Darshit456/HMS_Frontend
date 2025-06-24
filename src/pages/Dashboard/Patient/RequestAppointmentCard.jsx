@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { FaPlusCircle } from "react-icons/fa";
+import { FaPlusCircle, FaUserClock, FaPlus, FaClock, FaUser, FaCalendarAlt, FaNotesMedical, FaTimes } from "react-icons/fa";
+import { IoMdDocument } from "react-icons/io";
 import { getAllDoctors } from "../../../services/doctorsApi.js";
 import { createAppointment, getPatientAppointments } from "../../../services/appointmentApi.js";
 
@@ -49,14 +50,15 @@ const RequestAppointmentCard = () => {
             // Transform to display format - single line format
             const transformedRequests = pendingAppointments.map(appointment => ({
                 id: appointment.token,
-                name: `Appointment pending with Dr. ${appointment.doctorName}`,
+                name: `Dr. ${appointment.doctorName}`,
+                reason: appointment.reason || 'General Consultation',
+                date: appointment.appointmentDateTime ? new Date(appointment.appointmentDateTime).toLocaleDateString() : 'TBD',
                 status: appointment.status
             }));
 
             setPendingRequests(transformedRequests);
         } catch (error) {
             console.error("Failed to fetch pending requests:", error);
-            // Keep empty array if fetch fails
             setPendingRequests([]);
         }
     };
@@ -138,132 +140,220 @@ const RequestAppointmentCard = () => {
     };
 
     return (
-        <div className="dark:bg-gray-800 dark:text-white rounded-2xl shadow-md h-full p-4 flex flex-col justify-between">
-            <div className="relative group">
-                <h2 className="text-lg font-semibold mb-4">Pending Requests</h2>
-                <div className="overflow-y-auto max-h-40 custom-scroll group-hover:scroll-visible">
-                    <ul className="space-y-2 pr-2">
-                        {pendingRequests.length === 0 ? (
-                            <li className="dark:bg-gray-700 p-3 rounded-md text-gray-500 dark:text-gray-400 text-center">
-                                No pending requests
-                            </li>
-                        ) : (
-                            pendingRequests.map((req) => (
-                                <li key={req.id} className="dark:bg-gray-700 p-3 rounded-md">
-                                    {req.name} - <span className="text-yellow-400 font-semibold">{req.status}</span>
-                                </li>
-                            ))
-                        )}
-                    </ul>
+        <div className="bg-white dark:bg-gray-800 dark:text-white p-6 rounded-2xl shadow-md h-full">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold flex items-center gap-3">
+                    <div className="bg-purple-100 dark:bg-purple-900 p-2 rounded-lg">
+                        <FaUserClock className="text-purple-600 dark:text-purple-300" />
+                    </div>
+                    Pending Requests
+                    {pendingRequests.length > 0 && (
+                        <span className="bg-purple-500 text-white text-xs px-2 py-1 rounded-full">
+                            {pendingRequests.length}
+                        </span>
+                    )}
+                </h2>
+                <button
+                    onClick={() => setIsRequestOpen(true)}
+                    className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors"
+                >
+                    <FaPlus className="text-xs" />
+                    New Request
+                </button>
+            </div>
+
+            {/* Requests List */}
+            <div className="flex-1 overflow-y-auto max-h-64">
+                {pendingRequests.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                        <div className="bg-purple-100 dark:bg-purple-900 p-4 rounded-full mb-4">
+                            <IoMdDocument className="text-3xl text-purple-500 dark:text-purple-400" />
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-2">
+                            No Pending Requests
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                            Your appointment requests will appear here. Click "New Request" to schedule an appointment.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        {pendingRequests.map((req) => (
+                            <div key={req.id} className="bg-purple-50 dark:bg-gray-700 p-4 rounded-lg border-l-4 border-purple-500">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <FaUser className="text-purple-600 dark:text-purple-300 text-sm" />
+                                            <span className="font-semibold text-gray-800 dark:text-white">
+                                                {req.name}
+                                            </span>
+                                            <span className="bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300 text-xs px-2 py-1 rounded-full font-medium">
+                                                {req.status}
+                                            </span>
+                                        </div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <FaNotesMedical className="text-gray-400 text-xs" />
+                                                <span>{req.reason}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <FaCalendarAlt className="text-gray-400 text-xs" />
+                                                <span>{req.date}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Footer */}
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
+                <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Request status updates</span>
+                    <span className="text-purple-600 dark:text-purple-400 font-medium">Real-time</span>
                 </div>
             </div>
-            <button
-                onClick={() => setIsRequestOpen(true)}
-                className="mt-4 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition"
-            >
-                <FaPlusCircle /> Request Appointment
-            </button>
 
             {/* Request Appointment Popup */}
             {isRequestOpen && (
-                <div className="fixed inset-0 modal-backdrop flex items-center justify-center z-50">
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-96 max-w-md mx-4 shadow-2xl">
-                        <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Request Appointment</h3>
-
-                        {loading ? (
-                            <div className="text-center py-4">
-                                <div className="text-gray-500 dark:text-gray-400">Loading doctors...</div>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                {/* Doctor Dropdown */}
-                                <div>
-                                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                                        Select Doctor *
-                                    </label>
-                                    <select
-                                        name="doctorID"
-                                        value={formData.doctorID}
-                                        onChange={handleInputChange}
-                                        className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                        required
-                                    >
-                                        <option value="">Choose a doctor...</option>
-                                        {doctors.map((doctor) => (
-                                            <option key={doctor.doctorID} value={doctor.doctorID}>
-                                                Dr. {doctor.firstName} {doctor.lastName} - {doctor.specialization}
-                                            </option>
-                                        ))}
-                                    </select>
+                <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+                        {/* Header */}
+                        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-600">
+                            <h3 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-3">
+                                <div className="bg-purple-100 dark:bg-purple-900 p-2 rounded-lg">
+                                    <FaCalendarAlt className="text-purple-600 dark:text-purple-300" />
                                 </div>
+                                Request Appointment
+                            </h3>
+                            <button
+                                onClick={handleCancel}
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
+                            >
+                                <FaTimes className="text-lg" />
+                            </button>
+                        </div>
 
-                                {/* Reason */}
-                                <div>
-                                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                                        Reason for Visit *
-                                    </label>
-                                    <textarea
-                                        name="reason"
-                                        value={formData.reason}
-                                        onChange={handleInputChange}
-                                        placeholder="Describe your symptoms or reason for visit..."
-                                        rows="3"
-                                        className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white resize-none"
-                                        required
-                                    />
+                        {/* Content */}
+                        <div className="p-6">
+                            {loading ? (
+                                <div className="flex items-center justify-center py-8">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+                                    <span className="ml-3 text-gray-500 dark:text-gray-400">Loading doctors...</span>
                                 </div>
+                            ) : (
+                                <div className="space-y-5">
+                                    {/* Doctor Dropdown */}
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                            <FaUser className="text-purple-500" />
+                                            Select Doctor *
+                                        </label>
+                                        <select
+                                            name="doctorID"
+                                            value={formData.doctorID}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                            required
+                                        >
+                                            <option value="">Choose a doctor...</option>
+                                            {doctors.map((doctor) => (
+                                                <option key={doctor.doctorID} value={doctor.doctorID}>
+                                                    Dr. {doctor.firstName} {doctor.lastName} - {doctor.specialization}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
 
-                                {/* Date */}
-                                <div>
-                                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                                        Preferred Date *
-                                    </label>
-                                    <input
-                                        type="date"
-                                        name="appointmentDate"
-                                        value={formData.appointmentDate}
-                                        onChange={handleInputChange}
-                                        min={new Date().toISOString().split('T')[0]} // Prevent past dates
-                                        className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                        required
-                                    />
+                                    {/* Reason */}
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                            <FaNotesMedical className="text-purple-500" />
+                                            Reason for Visit *
+                                        </label>
+                                        <textarea
+                                            name="reason"
+                                            value={formData.reason}
+                                            onChange={handleInputChange}
+                                            placeholder="Describe your symptoms or reason for visit..."
+                                            rows="3"
+                                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Date and Time Row */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {/* Date */}
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                <FaCalendarAlt className="text-purple-500" />
+                                                Preferred Date *
+                                            </label>
+                                            <input
+                                                type="date"
+                                                name="appointmentDate"
+                                                value={formData.appointmentDate}
+                                                onChange={handleInputChange}
+                                                min={new Date().toISOString().split('T')[0]}
+                                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                                required
+                                            />
+                                        </div>
+
+                                        {/* Time */}
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                <FaClock className="text-purple-500" />
+                                                Preferred Time *
+                                            </label>
+                                            <select
+                                                name="appointmentTime"
+                                                value={formData.appointmentTime}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                                required
+                                            >
+                                                <option value="">Select time...</option>
+                                                {timeSlots.map((time) => (
+                                                    <option key={time} value={time}>
+                                                        {time}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
+                            )}
+                        </div>
 
-                                {/* Time */}
-                                <div>
-                                    <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                                        Preferred Time *
-                                    </label>
-                                    <select
-                                        name="appointmentTime"
-                                        value={formData.appointmentTime}
-                                        onChange={handleInputChange}
-                                        className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                        required
-                                    >
-                                        <option value="">Select time...</option>
-                                        {timeSlots.map((time) => (
-                                            <option key={time} value={time}>
-                                                {time}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="flex gap-3 mt-6">
+                        {/* Footer */}
+                        <div className="flex gap-3 p-6 border-t border-gray-200 dark:border-gray-600">
                             <button
                                 onClick={handleSubmit}
                                 disabled={submitting || loading}
-                                className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                             >
-                                {submitting ? "Sending..." : "Send Request"}
+                                {submitting ? (
+                                    <>
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                        Sending...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FaPlusCircle />
+                                        Send Request
+                                    </>
+                                )}
                             </button>
                             <button
                                 onClick={handleCancel}
                                 disabled={submitting}
-                                className="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 disabled:bg-gray-400"
+                                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-medium disabled:bg-gray-400 transition-colors"
                             >
                                 Cancel
                             </button>
