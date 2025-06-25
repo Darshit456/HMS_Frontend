@@ -45,10 +45,10 @@ const LoginForm = () => {
                 } else if (role === "Patient") {
                     console.log("Redirecting to patient dashboard");
                     navigate("/patient/dashboard");
-                } else {
+                } else if (role === "Admin") {
                     // Fallback - redirect to patient dashboard if role is unclear
-                    console.log("Role unclear, defaulting to patient dashboard. Role received:", role);
-                    navigate("/patient/dashboard");
+                    console.log("Redirect to Admin dashboard");
+                    navigate("/Admin/dashboard");
                 }
             }
         } catch (error) {
