@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { FaFileMedical, FaEye, FaTimes, FaUser, FaCalendarAlt, FaPrescriptionBottleAlt, FaNotesMedical, FaStethoscope } from "react-icons/fa";
 import { getPatientMedicalRecords } from "../../../services/medicalRecordsApi.js";
+import { getDoctorById } from "../../../services/doctorsApi.js";
 
 const MedicalRecordsSection = () => {
     const [medicalRecords, setMedicalRecords] = useState([]);
@@ -43,6 +44,17 @@ const MedicalRecordsSection = () => {
         }
     };
 
+    // Function to fetch doctor name by ID
+    const fetchDoctorName = async (doctorId) => {
+        try {
+            const doctor = await getDoctorById(doctorId);
+            return `Dr. ${doctor.firstName} ${doctor.lastName}`;
+        } catch (error) {
+            console.error(`Failed to fetch doctor ${doctorId}:`, error);
+            return "Dr. Unknown";
+        }
+    };
+
     // Open record detail modal
     const openRecordDetail = (record) => {
         console.log("Opening record detail for:", record);
@@ -71,25 +83,33 @@ const MedicalRecordsSection = () => {
                 return;
             }
 
-            // Transform the data to match enhanced UI structure
-            const transformedRecords = recordsData.map((record, index) => {
-                console.log(`Processing record ${index}:`, record);
+            // Transform the data and fetch doctor names
+            const transformedRecords = await Promise.all(
+                recordsData.map(async (record, index) => {
+                    console.log(`Processing record ${index}:`, record);
 
-                return {
-                    id: record.recordID || record.RecordID || record.id || index,
-                    type: getRecordType(record.diagnosis || record.Diagnosis),
-                    date: formatDate(record.recordDate || record.RecordDate || record.createdAt || record.date),
-                    diagnosis: record.diagnosis || record.Diagnosis || 'No diagnosis specified',
-                    prescription: record.prescription || record.Prescription || 'No prescription specified',
-                    notes: record.notes || record.Notes || 'No additional notes',
-                    doctorName: record.doctorName || record.DoctorName || 'Dr. Unknown',
-                    appointmentId: record.appointmentID || record.AppointmentID || null,
-                    recordDate: record.recordDate || record.RecordDate || record.createdAt || record.date,
-                    // Additional fields that might be present
-                    patientID: record.patientID || record.PatientID,
-                    doctorID: record.doctorID || record.DoctorID
-                };
-            });
+                    // Extract doctorID from the record
+                    const doctorId = record.doctorID || record.DoctorID;
+
+                    // Fetch doctor name using doctorID
+                    const doctorName = doctorId ? await fetchDoctorName(doctorId) : 'Dr. Unknown';
+
+                    return {
+                        id: record.recordID || record.RecordID || record.id || index,
+                        type: getRecordType(record.diagnosis || record.Diagnosis),
+                        date: formatDate(record.recordDate || record.RecordDate || record.createdAt || record.date),
+                        diagnosis: record.diagnosis || record.Diagnosis || 'No diagnosis specified',
+                        prescription: record.prescription || record.Prescription || 'No prescription specified',
+                        notes: record.notes || record.Notes || 'No additional notes',
+                        doctorName: doctorName, // Now using fetched doctor name
+                        appointmentId: record.appointmentID || record.AppointmentID || null,
+                        recordDate: record.recordDate || record.RecordDate || record.createdAt || record.date,
+                        // Additional fields that might be present
+                        patientID: record.patientID || record.PatientID,
+                        doctorID: doctorId
+                    };
+                })
+            );
 
             console.log("Transformed records:", transformedRecords);
 

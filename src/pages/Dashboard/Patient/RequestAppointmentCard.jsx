@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaPlusCircle, FaUserClock, FaPlus, FaClock, FaUser, FaCalendarAlt, FaNotesMedical, FaTimes } from "react-icons/fa";
 import { IoMdDocument } from "react-icons/io";
-import { getAllDoctors } from "../../../services/doctorsApi.js";
+import { getAllDoctors, getDoctorById } from "../../../services/doctorsApi.js";
 import { createAppointment, getPatientAppointments } from "../../../services/appointmentApi.js";
 
 const RequestAppointmentCard = () => {
@@ -26,6 +26,17 @@ const RequestAppointmentCard = () => {
         '16:00', '16:30', '17:00', '17:30', '18:00'
     ];
 
+    // Function to fetch doctor name by ID
+    const fetchDoctorName = async (doctorId) => {
+        try {
+            const doctor = await getDoctorById(doctorId);
+            return `Dr. ${doctor.firstName} ${doctor.lastName}`;
+        } catch (error) {
+            console.error(`Failed to fetch doctor ${doctorId}:`, error);
+            return "Dr. Unknown";
+        }
+    };
+
     // Fetch pending requests on component mount
     useEffect(() => {
         fetchPendingRequests();
@@ -47,14 +58,27 @@ const RequestAppointmentCard = () => {
                 appointment.status && appointment.status.toLowerCase() === 'pending'
             );
 
-            // Transform to display format - single line format
-            const transformedRequests = pendingAppointments.map(appointment => ({
-                id: appointment.token,
-                name: `Dr. ${appointment.doctorName}`,
-                reason: appointment.reason || 'General Consultation',
-                date: appointment.appointmentDateTime ? new Date(appointment.appointmentDateTime).toLocaleDateString() : 'TBD',
-                status: appointment.status
-            }));
+            // Transform to display format with doctor names
+            const transformedRequests = await Promise.all(
+                pendingAppointments.map(async (appointment) => {
+                    // Fetch doctor name using doctorID
+                    const doctorName = appointment.doctorID
+                        ? await fetchDoctorName(appointment.doctorID)
+                        : 'Dr. Unknown';
+
+                    return {
+                        id: appointment.token,
+                        name: doctorName, // Now using fetched doctor name
+                        reason: appointment.reason || 'General Consultation',
+                        date: appointment.appointmentDateTime
+                            ? new Date(appointment.appointmentDateTime).toLocaleDateString()
+                            : appointment.dateTime
+                                ? new Date(appointment.dateTime).toLocaleDateString()
+                                : 'TBD',
+                        status: appointment.status
+                    };
+                })
+            );
 
             setPendingRequests(transformedRequests);
         } catch (error) {
