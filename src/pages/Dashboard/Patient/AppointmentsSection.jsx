@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getPatientAppointments } from "../../../services/appointmentApi.js";
+import { getDoctorById } from "../../../services/doctorsApi.js"; // You'll need to add this function
 
 const AppointmentsSection = () => {
     const [appointments, setAppointments] = useState([]);
@@ -48,6 +49,17 @@ const AppointmentsSection = () => {
         }
     };
 
+    // Function to fetch doctor name by ID
+    const fetchDoctorName = async (doctorId) => {
+        try {
+            const doctor = await getDoctorById(doctorId);
+            return `Dr. ${doctor.firstName} ${doctor.lastName}`;
+        } catch (error) {
+            console.error(`Failed to fetch doctor ${doctorId}:`, error);
+            return "Dr. Unknown";
+        }
+    };
+
     // Function to fetch appointments
     const fetchAppointments = async () => {
         try {
@@ -56,19 +68,24 @@ const AppointmentsSection = () => {
 
             const appointmentsData = await getPatientAppointments();
 
-            // Transform the data to match your existing UI structure
-            const transformedAppointments = appointmentsData.map(appointment => {
-                const { date, time } = formatDateTime(appointment.dateTime);
+            // Transform the data and fetch doctor names
+            const transformedAppointments = await Promise.all(
+                appointmentsData.map(async (appointment) => {
+                    const { date, time } = formatDateTime(appointment.dateTime);
 
-                return {
-                    id: appointment.token,
-                    date: date,
-                    time: time,
-                    doctor: appointment.doctorName,
-                    status: appointment.status,
-                    reason: appointment.reason // Should now come from your updated backend
-                };
-            });
+                    // Fetch doctor name using doctorID
+                    const doctorName = await fetchDoctorName(appointment.doctorID);
+
+                    return {
+                        id: appointment.token,
+                        date: date,
+                        time: time,
+                        doctor: doctorName, // Now using fetched doctor name
+                        status: appointment.status,
+                        reason: appointment.reason
+                    };
+                })
+            );
 
             setAppointments(transformedAppointments);
             console.log("Transformed appointments:", transformedAppointments);
