@@ -330,10 +330,12 @@ export const getPatientById = async (patientId) => {
     }
 };
 
-// Update doctor (Admin access)
+// Update doctor (Admin access) - ADDED MISSING FUNCTION
 export const updateDoctor = async (doctorId, updateData) => {
     try {
         const token = localStorage.getItem("token");
+
+        console.log("Admin updating doctor:", doctorId, "with data:", updateData);
 
         const patchOperations = [];
 
@@ -400,6 +402,7 @@ export const updateDoctor = async (doctorId, updateData) => {
             }
         });
 
+        console.log("Doctor update response:", response.data);
         return response;
 
     } catch (error) {
@@ -409,10 +412,12 @@ export const updateDoctor = async (doctorId, updateData) => {
     }
 };
 
-// Update patient (Admin access)
+// Update patient (Admin access) - ADDED MISSING FUNCTION
 export const updatePatient = async (patientId, updateData) => {
     try {
         const token = localStorage.getItem("token");
+
+        console.log("Admin updating patient:", patientId, "with data:", updateData);
 
         const patchOperations = [];
 
@@ -461,6 +466,24 @@ export const updatePatient = async (patientId, updateData) => {
             });
         }
 
+        if (updateData.dateOfBirth) {
+            patchOperations.push({
+                "operationType": 0,
+                "path": "/DateOfBirth",
+                "op": "replace",
+                "value": updateData.dateOfBirth
+            });
+        }
+
+        if (updateData.gender) {
+            patchOperations.push({
+                "operationType": 0,
+                "path": "/Gender",
+                "op": "replace",
+                "value": updateData.gender
+            });
+        }
+
         console.log("Admin updating patient with patch operations:", patchOperations);
 
         const response = await axios.patch(`${PATIENT_API_URL}/update/${patientId}`, patchOperations, {
@@ -470,6 +493,7 @@ export const updatePatient = async (patientId, updateData) => {
             }
         });
 
+        console.log("Patient update response:", response.data);
         return response;
 
     } catch (error) {
