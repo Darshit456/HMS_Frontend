@@ -5,6 +5,47 @@ const DOCTOR_API_URL = "https://localhost:7195/api/Doctor";
 const PATIENT_API_URL = "https://localhost:7195/api/Patient";
 const USER_API_URL = "https://localhost:7195/api/User";
 
+// Get all admins (Admin access)
+export const getAllAdmins = async () => {
+    try {
+        const token = localStorage.getItem("token");
+
+        console.log("Admin fetching all admins...");
+
+        // Since there's no specific endpoint for all admins, we need to get all users
+        // and filter by role. You may need to create this endpoint in your backend
+        const response = await axios.get(`${USER_API_URL}/all`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        // Filter only admin users
+        const admins = response.data.filter(user => user.role === "Admin" || user.Role === "Admin");
+
+        console.log("Admin users response:", admins);
+        return admins;
+
+    } catch (error) {
+        console.error("Error fetching admins:", error);
+
+        // If the endpoint doesn't exist, return the current admin as a fallback
+        const currentAdmin = localStorage.getItem("userDetails");
+        if (currentAdmin) {
+            const adminData = JSON.parse(currentAdmin);
+            return [{
+                userID: adminData.userID,
+                username: adminData.username,
+                email: adminData.email,
+                role: "Admin"
+            }];
+        }
+
+        return [];
+    }
+};
+
 // Get all doctors (Admin access)
 export const getAllDoctors = async () => {
     try {
@@ -47,6 +88,37 @@ export const getAllPatients = async () => {
 
     } catch (error) {
         console.error("Error fetching patients (Admin):", error);
+        throw error;
+    }
+};
+
+// Delete admin (Admin only)
+export const deleteAdmin = async (userId) => {
+    try {
+        const token = localStorage.getItem("token");
+
+        console.log("Admin deleting admin user ID:", userId);
+
+        // Prevent deleting self
+        const currentUser = JSON.parse(localStorage.getItem("userDetails"));
+        if (currentUser.userID === userId) {
+            throw new Error("You cannot delete your own admin account!");
+        }
+
+        // Delete the User record
+        const response = await axios.delete(`${USER_API_URL}/delete/${userId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log("Admin deletion response:", response.data);
+        return response.data;
+
+    } catch (error) {
+        console.error("Error deleting admin:", error);
+        console.error("Backend response:", error.response?.data);
         throw error;
     }
 };
