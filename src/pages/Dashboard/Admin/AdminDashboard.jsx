@@ -1,29 +1,70 @@
 // File Location: src/pages/Dashboard/Admin/AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import UsersManagementSection from './UsersManagementSection';
+import { getAllDoctors, getAllPatients } from '../../../services/Admin/adminUsersApi';
 
 const AdminDashboard = () => {
-    const [activeTab, setActiveTab] = useState('dashboard');
-    const [adminName, setAdminName] = useState("");
+    const [activeSection, setActiveSection] = useState('dashboard');
+    const [adminData, setAdminData] = useState({
+        username: "Administrator",
+        email: "",
+        userId: "",
+        loginTime: new Date().toLocaleTimeString(),
+        loginDate: new Date().toLocaleDateString()
+    });
+    const [systemStats, setSystemStats] = useState({
+        totalUsers: 0,
+        totalDoctors: 0,
+        totalPatients: 0,
+        totalAppointments: 0,
+        loading: true
+    });
 
     useEffect(() => {
+        // Load admin data from localStorage
         const userDetails = localStorage.getItem("userDetails");
         if (userDetails) {
             const userData = JSON.parse(userDetails);
-            setAdminName(userData.Username || "Administrator");
+            setAdminData({
+                username: userData.Username || "Administrator",
+                email: userData.Email || "admin@hospital.com",
+                userId: userData.UserID || "ADM001",
+                loginTime: new Date().toLocaleTimeString(),
+                loginDate: new Date().toLocaleDateString()
+            });
         }
+
+        // Load system statistics
+        loadSystemStats();
     }, []);
+
+    const loadSystemStats = async () => {
+        try {
+            const [doctorsData, patientsData] = await Promise.all([
+                getAllDoctors(),
+                getAllPatients()
+            ]);
+
+            setSystemStats({
+                totalDoctors: doctorsData.length || 0,
+                totalPatients: patientsData.length || 0,
+                totalUsers: (doctorsData.length || 0) + (patientsData.length || 0),
+                totalAppointments: 0, // Will be loaded when appointment API is implemented
+                loading: false
+            });
+        } catch (error) {
+            console.error("Error loading system stats:", error);
+            setSystemStats(prev => ({ ...prev, loading: false }));
+        }
+    };
 
     const handleLogout = () => {
         if (window.confirm("Are you sure you want to logout?")) {
             try {
-                // Clear all stored data (following your exact pattern)
                 localStorage.removeItem("token");
                 localStorage.removeItem("userDetails");
                 localStorage.removeItem("userRole");
                 sessionStorage.clear();
-
-                // Redirect to login page
                 window.location.href = "/";
             } catch (error) {
                 console.error("Logout error:", error);
@@ -32,149 +73,306 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleQuickAction = (section) => {
+        setActiveSection(section);
+    };
+
     const renderActiveSection = () => {
-        switch (activeTab) {
+        switch (activeSection) {
             case 'users':
                 return <UsersManagementSection />;
             case 'appointments':
-                return <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6"><h2 className="text-xl font-semibold text-gray-800 dark:text-white">Appointments Management - Coming Soon</h2></div>;
+                return (
+                    <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 animate-fadeIn">
+                        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                            Appointments Management - Coming Soon
+                        </h2>
+                    </div>
+                );
             case 'medical-records':
-                return <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6"><h2 className="text-xl font-semibold text-gray-800 dark:text-white">Medical Records Management - Coming Soon</h2></div>;
+                return (
+                    <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 animate-fadeIn">
+                        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                            Medical Records Management - Coming Soon
+                        </h2>
+                    </div>
+                );
             case 'notifications':
-                return <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6"><h2 className="text-xl font-semibold text-gray-800 dark:text-white">Notifications Management - Coming Soon</h2></div>;
+                return (
+                    <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 animate-fadeIn">
+                        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                            Notifications Management - Coming Soon
+                        </h2>
+                    </div>
+                );
             default:
-                return <DashboardOverview />;
+                return <DashboardOverview onQuickAction={handleQuickAction} systemStats={systemStats} />;
         }
     };
 
     return (
-        <div className="h-screen w-full overflow-hidden bg-gray-100 dark:bg-gray-900 p-2 sm:p-4 flex flex-col">
-            {/* Header following your Patient/Doctor pattern */}
-            <div className="text-center mb-4">
-                <h5 className="text-2xl font-bold text-gray-800 dark:text-cyan-300 mb-1">
-                    Welcome Admin, {adminName}! 👨‍💼
+        <div className="h-screen w-full overflow-hidden bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 p-2 sm:p-4 flex flex-col">
+            {/* Add custom animations */}
+            <style jsx>{`
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes slideIn {
+                    from { opacity: 0; transform: translateX(-20px); }
+                    to { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes pulse {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
+                }
+                .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
+                .animate-slideIn { animation: slideIn 0.5s ease-out; }
+                .animate-pulse-hover:hover { animation: pulse 0.3s ease-in-out; }
+            `}</style>
+
+            {/* Header */}
+            <div className="text-center mb-4 animate-fadeIn">
+                <h5 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-1">
+                    Welcome Admin! 👨‍💼
                 </h5>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Hospital Management System - Administrative Control Panel
+                <p className="text-sm text-gray-400">
+                    Hospital Management System - Control Center
                 </p>
             </div>
 
-            {/* Navigation Tabs */}
-            <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-4 mb-4">
-                <div className="flex flex-wrap gap-2">
-                    {[
-                        { id: 'dashboard', label: '📊 Dashboard' },
-                        { id: 'users', label: '👥 Users' },
-                        { id: 'appointments', label: '📅 Appointments' },
-                        { id: 'medical-records', label: '📋 Records' },
-                        { id: 'notifications', label: '🔔 Notifications' }
-                    ].map((tab) => (
+            {/* Main Content Area */}
+            <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-4">
+                {/* Left Side - Admin Profile Box */}
+                <div className="w-full lg:w-80 flex-shrink-0 animate-slideIn">
+                    <div className="bg-gradient-to-br from-gray-800 to-gray-700 shadow-xl rounded-2xl p-4 sm:p-6 h-full border border-gray-700">
+                        {/* Profile Header */}
+                        <div className="text-center mb-4">
+                            <div className="relative inline-block">
+                                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg animate-pulse-hover mx-auto mb-3">
+                                    <span className="text-white text-3xl">👨‍💼</span>
+                                </div>
+                                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-gray-800 flex items-center justify-center">
+                                    <span className="text-xs text-white">✓</span>
+                                </div>
+                            </div>
+                            <h4 className="text-xl font-bold text-white">{adminData.username}</h4>
+                            <p className="text-sm text-purple-400">System Administrator</p>
+                        </div>
+
+                        {/* Admin Details */}
+                        <div className="space-y-3 mb-4">
+                            <div className="bg-gray-900/50 rounded-lg p-3">
+                                <div className="flex items-center gap-2 text-gray-300 mb-1">
+                                    <span className="text-purple-400">📧</span>
+                                    <span className="text-sm truncate">{adminData.email}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-gray-300">
+                                    <span className="text-blue-400">🆔</span>
+                                    <span className="text-sm">ID: {adminData.userId}</span>
+                                </div>
+                            </div>
+
+                            <div className="bg-gray-900/50 rounded-lg p-3">
+                                <div className="flex items-center gap-2 text-gray-300 mb-1">
+                                    <span className="text-green-400">🛡️</span>
+                                    <span className="text-sm">Full System Access</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-gray-300">
+                                    <span className="text-yellow-400">⭐</span>
+                                    <span className="text-sm">Super Admin Privileges</span>
+                                </div>
+                            </div>
+
+                            <div className="bg-gray-900/50 rounded-lg p-3">
+                                <div className="text-xs text-gray-400 mb-1">Last Login</div>
+                                <div className="flex items-center gap-2 text-gray-300">
+                                    <span className="text-cyan-400">🕐</span>
+                                    <span className="text-sm">{adminData.loginTime}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-gray-300">
+                                    <span className="text-cyan-400">📅</span>
+                                    <span className="text-sm">{adminData.loginDate}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Quick Stats */}
+                        <div className="grid grid-cols-2 gap-2 mb-4">
+                            <div className="bg-blue-900/30 rounded-lg p-2 text-center">
+                                <div className="text-blue-400 text-sm">Active</div>
+                                <div className="text-white font-bold">24/7</div>
+                            </div>
+                            <div className="bg-purple-900/30 rounded-lg p-2 text-center">
+                                <div className="text-purple-400 text-sm">Session</div>
+                                <div className="text-white font-bold">Secure</div>
+                            </div>
+                        </div>
+
                         <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-                                activeTab === tab.id
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                            }`}
+                            onClick={handleLogout}
+                            className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg"
                         >
-                            {tab.label}
+                            <span>🚪</span> Logout
                         </button>
-                    ))}
-
-                    {/* Logout button */}
-                    <button
-                        onClick={handleLogout}
-                        className="ml-auto bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium"
-                    >
-                        🚪 Logout
-                    </button>
+                    </div>
                 </div>
-            </div>
 
-            {/* Main Content Area - Following your grid pattern */}
-            <div className="flex-1 min-h-0">
-                {renderActiveSection()}
+                {/* Right Side - Main Content */}
+                <div className="flex-1 min-h-0 overflow-auto">
+                    {activeSection === 'dashboard' ? (
+                        <DashboardOverview
+                            onQuickAction={handleQuickAction}
+                            systemStats={systemStats}
+                        />
+                    ) : (
+                        <div className="flex-1 min-h-0 overflow-auto">
+                            <button
+                                onClick={() => setActiveSection('dashboard')}
+                                className="mb-4 text-purple-400 hover:text-purple-300 flex items-center gap-2 transition-colors"
+                            >
+                                ← Back to Dashboard
+                            </button>
+                            {renderActiveSection()}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
 };
 
-// Dashboard Overview Component - No dummy data
-const DashboardOverview = () => {
+// Dashboard Overview Component
+const DashboardOverview = ({ onQuickAction, systemStats }) => {
+    const statsCards = [
+        {
+            title: "Total Users",
+            value: systemStats.totalUsers,
+            icon: "👥",
+            color: "from-blue-500 to-blue-600",
+            bgColor: "from-blue-900/20 to-blue-800/20"
+        },
+        {
+            title: "Active Doctors",
+            value: systemStats.totalDoctors,
+            icon: "👨‍⚕️",
+            color: "from-green-500 to-green-600",
+            bgColor: "from-green-900/20 to-green-800/20"
+        },
+        {
+            title: "Total Patients",
+            value: systemStats.totalPatients,
+            icon: "🏥",
+            color: "from-purple-500 to-purple-600",
+            bgColor: "from-purple-900/20 to-purple-800/20"
+        },
+        {
+            title: "Appointments",
+            value: systemStats.totalAppointments,
+            icon: "📅",
+            color: "from-orange-500 to-orange-600",
+            bgColor: "from-orange-900/20 to-orange-800/20"
+        }
+    ];
+
+    const quickActions = [
+        {
+            id: 'users',
+            title: 'Manage Users',
+            description: 'View and manage doctors, patients, and admins',
+            icon: '👥',
+            color: 'from-blue-600 to-blue-700',
+            hoverColor: 'hover:from-blue-700 hover:to-blue-800'
+        },
+        {
+            id: 'appointments',
+            title: 'View Appointments',
+            description: 'Manage all system appointments',
+            icon: '📅',
+            color: 'from-green-600 to-green-700',
+            hoverColor: 'hover:from-green-700 hover:to-green-800'
+        },
+        {
+            id: 'medical-records',
+            title: 'Medical Records',
+            description: 'Access and manage patient records',
+            icon: '📋',
+            color: 'from-purple-600 to-purple-700',
+            hoverColor: 'hover:from-purple-700 hover:to-purple-800'
+        },
+        {
+            id: 'notifications',
+            title: 'Notifications',
+            description: 'Send and manage system notifications',
+            icon: '🔔',
+            color: 'from-orange-600 to-orange-700',
+            hoverColor: 'hover:from-orange-700 hover:to-orange-800'
+        }
+    ];
+
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-4 h-full min-h-0">
-            {/* Quick Stats Cards */}
-            <div className="lg:col-span-8 min-h-0">
-                <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 h-full">
-                    <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">System Overview</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {/* System stats will be populated from real API calls */}
-                        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+        <div className="space-y-4">
+            {/* System Overview */}
+            <div className="bg-gray-800/50 backdrop-blur-sm shadow-xl rounded-2xl p-4 sm:p-6 border border-gray-700 animate-fadeIn">
+                <h2 className="text-xl font-semibold mb-4 text-white flex items-center gap-2">
+                    <span className="text-purple-400">📊</span> System Overview
+                </h2>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    {statsCards.map((stat, index) => (
+                        <div
+                            key={stat.title}
+                            className={`bg-gradient-to-br ${stat.bgColor} backdrop-blur-sm p-3 sm:p-4 rounded-xl border border-gray-700 transform transition-all duration-300 hover:scale-105 animate-fadeIn`}
+                            style={{ animationDelay: `${index * 0.1}s` }}
+                        >
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">Total Users</p>
-                                    <p className="text-2xl font-bold text-gray-800 dark:text-white">Loading...</p>
+                                    <p className="text-gray-400 text-xs sm:text-sm font-medium">{stat.title}</p>
+                                    {systemStats.loading ? (
+                                        <div className="h-8 w-16 bg-gray-700 rounded animate-pulse mt-1"></div>
+                                    ) : (
+                                        <p className="text-2xl sm:text-3xl font-bold text-white">{stat.value}</p>
+                                    )}
                                 </div>
-                                <div className="text-blue-600 dark:text-blue-400 text-2xl">👥</div>
+                                <div className={`text-2xl sm:text-3xl bg-gradient-to-br ${stat.color} p-2 rounded-lg text-white shadow-lg`}>
+                                    {stat.icon}
+                                </div>
                             </div>
                         </div>
-
-                        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-green-600 dark:text-green-400 text-sm font-medium">Active Doctors</p>
-                                    <p className="text-2xl font-bold text-gray-800 dark:text-white">Loading...</p>
-                                </div>
-                                <div className="text-green-600 dark:text-green-400 text-2xl">👨‍⚕️</div>
-                            </div>
-                        </div>
-
-                        <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-purple-600 dark:text-purple-400 text-sm font-medium">Total Patients</p>
-                                    <p className="text-2xl font-bold text-gray-800 dark:text-white">Loading...</p>
-                                </div>
-                                <div className="text-purple-600 dark:text-purple-400 text-2xl">🏥</div>
-                            </div>
-                        </div>
-                    </div>
+                    ))}
                 </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="lg:col-span-4 min-h-0">
-                <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 h-full">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Quick Actions</h3>
-                    <div className="space-y-3">
-                        <button className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors text-left">
-                            <span className="text-lg mr-2">👥</span>
-                            Manage Users
+            <div className="bg-gray-800/50 backdrop-blur-sm shadow-xl rounded-2xl p-4 sm:p-6 border border-gray-700 animate-fadeIn">
+                <h3 className="text-lg font-semibold mb-4 text-white flex items-center gap-2">
+                    <span className="text-purple-400">⚡</span> Quick Actions
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {quickActions.map((action, index) => (
+                        <button
+                            key={action.id}
+                            onClick={() => onQuickAction(action.id)}
+                            className={`bg-gradient-to-r ${action.color} ${action.hoverColor} text-white p-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-left flex items-start gap-3 animate-fadeIn`}
+                            style={{ animationDelay: `${index * 0.1}s` }}
+                        >
+                            <span className="text-2xl">{action.icon}</span>
+                            <div>
+                                <div className="font-semibold">{action.title}</div>
+                                <div className="text-sm opacity-90">{action.description}</div>
+                            </div>
                         </button>
-                        <button className="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg transition-colors text-left">
-                            <span className="text-lg mr-2">📅</span>
-                            View Appointments
-                        </button>
-                        <button className="w-full bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-lg transition-colors text-left">
-                            <span className="text-lg mr-2">📋</span>
-                            Medical Records
-                        </button>
-                        <button className="w-full bg-orange-600 hover:bg-orange-700 text-white p-3 rounded-lg transition-colors text-left">
-                            <span className="text-lg mr-2">🔔</span>
-                            Notifications
-                        </button>
-                    </div>
+                    ))}
                 </div>
             </div>
 
             {/* Recent Activity */}
-            <div className="lg:col-span-12 min-h-0">
-                <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 h-full">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Recent System Activity</h3>
-                    <div className="text-gray-600 dark:text-gray-400">
-                        <p>Recent notifications and system updates will appear here...</p>
-                    </div>
+            <div className="bg-gray-800/50 backdrop-blur-sm shadow-xl rounded-2xl p-4 sm:p-6 border border-gray-700 animate-fadeIn">
+                <h3 className="text-lg font-semibold mb-4 text-white flex items-center gap-2">
+                    <span className="text-purple-400">🕐</span> Recent System Activity
+                </h3>
+                <div className="text-center py-8">
+                    <div className="text-gray-500 text-6xl mb-4">📊</div>
+                    <p className="text-gray-400">Activity logs will appear here</p>
                 </div>
             </div>
         </div>
