@@ -4,6 +4,8 @@ import axios from "axios";
 const DOCTOR_API_URL = "https://localhost:7195/api/Doctor";
 const PATIENT_API_URL = "https://localhost:7195/api/Patient";
 const USER_API_URL = "https://localhost:7195/api/User";
+const API_URL = "https://localhost:7195/api/Appointment";
+
 
 // Get all admins (Admin access)
 export const getAllAdmins = async () => {

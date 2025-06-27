@@ -1,7 +1,7 @@
 // File Location: src/pages/Dashboard/Admin/AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import UsersManagementSection from './UsersManagementSection';
-import { getAllDoctors, getAllPatients } from '../../../services/Admin/adminUsersApi';
+import {getAllAdmins, getAllDoctors, getAllPatients} from '../../../services/Admin/adminUsersApi';
 import { getAdminProfile } from '../../../services/Admin/adminApi';
 
 const AdminDashboard = () => {
@@ -58,20 +58,20 @@ const AdminDashboard = () => {
 
     const loadSystemStats = async () => {
         try {
-            const [doctorsData, patientsData] = await Promise.all([
+            const [doctorsData, patientsData, adminData] = await Promise.all([
                 getAllDoctors(),
-                getAllPatients()
+                getAllPatients(),
+                getAllAdmins()
             ]);
 
-            // Count admins from users (assuming all non-doctor, non-patient users are admins)
-            const totalAdmins = 1; // For now, we'll update this when we have an API to get all admins
+
 
             setSystemStats({
                 totalDoctors: doctorsData.length || 0,
                 totalPatients: patientsData.length || 0,
-                totalUsers: (doctorsData.length || 0) + (patientsData.length || 0) + totalAdmins,
+                totalUsers: (doctorsData.length || 0) + (patientsData.length || 0) + (adminData.length || 0),
                 totalAppointments: 0, // Will be loaded when appointment API is implemented
-                totalAdmins: totalAdmins,
+                totalAdmins: adminData.length || 0,
                 loading: false
             });
         } catch (error) {
