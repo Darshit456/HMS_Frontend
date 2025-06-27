@@ -1,6 +1,6 @@
 // File Location: src/pages/Dashboard/Admin/UsersManagementSection.jsx
 import React, { useState, useEffect } from 'react';
-import { getAllDoctors, getAllPatients, getAllAdmins, deleteDoctor, deletePatient, deleteAdmin, createAdmin } from '../../../services/Admin/adminUsersApi';
+import { getAllDoctors, getAllPatients, getAllAdmins, deleteDoctor, deletePatient, deleteAdmin, createAdmin, updateAdmin } from '../../../services/Admin/adminUsersApi';
 
 const UsersManagementSection = () => {
     const [activeUserType, setActiveUserType] = useState('doctors');
@@ -20,6 +20,15 @@ const UsersManagementSection = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [passwordStrength, setPasswordStrength] = useState(0);
+    const [showEditAdmin, setShowEditAdmin] = useState(false);
+    const [editAdminData, setEditAdminData] = useState({
+        userId: null,
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: ""
+    });
+    const [editFormErrors, setEditFormErrors] = useState({});
 
     useEffect(() => {
         fetchUsersData();
@@ -153,6 +162,62 @@ const UsersManagementSection = () => {
         }
     };
 
+    // Validate edit form
+    const validateEditForm = () => {
+        const errors = {};
+
+        // Username validation
+        if (!editAdminData.username.trim()) {
+            errors.username = "Username is required";
+        } else if (editAdminData.username.length < 3) {
+            errors.username = "Username must be at least 3 characters";
+        } else if (!/^[a-zA-Z0-9_]+$/.test(editAdminData.username)) {
+            errors.username = "Username can only contain letters, numbers, and underscores";
+        }
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!editAdminData.email.trim()) {
+            errors.email = "Email is required";
+        } else if (!emailRegex.test(editAdminData.email)) {
+            errors.email = "Please enter a valid email address";
+        }
+
+        // Password validation (only if password is being changed)
+        if (editAdminData.password) {
+            if (editAdminData.password.length < 8) {
+                errors.password = "Password must be at least 8 characters";
+            } else if (checkPasswordStrength(editAdminData.password) < 3) {
+                errors.password = "Password is too weak. Use uppercase, lowercase, numbers, and symbols";
+            }
+
+            // Confirm password validation
+            if (!editAdminData.confirmPassword) {
+                errors.confirmPassword = "Please confirm your password";
+            } else if (editAdminData.password !== editAdminData.confirmPassword) {
+                errors.confirmPassword = "Passwords do not match";
+            }
+        }
+
+        setEditFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const handleEditInputChange = (field, value) => {
+        setEditAdminData({ ...editAdminData, [field]: value });
+
+        // Clear error for this field when user starts typing
+        if (editFormErrors[field]) {
+            setEditFormErrors({ ...editFormErrors, [field]: "" });
+        }
+
+        // Update password strength
+        if (field === 'password') {
+            setPasswordStrength(checkPasswordStrength(value));
+        }
+    };
+
+    // FIXED: Added the missing handleCreateAdmin function
     const handleCreateAdmin = async (e) => {
         e.preventDefault();
 
@@ -161,18 +226,74 @@ const UsersManagementSection = () => {
         }
 
         try {
-            const { confirmPassword, ...dataToSend } = adminFormData;
-            await createAdmin(dataToSend);
+            const createData = {
+                username: adminFormData.username,
+                email: adminFormData.email,
+                password: adminFormData.password
+            };
+
+            await createAdmin(createData);
             alert("Admin created successfully!");
+
+            // Reset form and close modal
             setShowCreateAdmin(false);
             setAdminFormData({ username: "", email: "", password: "", confirmPassword: "" });
             setFormErrors({});
             setPasswordStrength(0);
-            // Refresh the data
+            setShowPassword(false);
+            setShowConfirmPassword(false);
+
+            // Refresh the data to show the new admin
             fetchUsersData();
+
         } catch (error) {
             console.error("Error creating admin:", error);
             alert("Failed to create admin: " + error.message);
+        }
+    };
+
+    const handleEditAdmin = (admin) => {
+        setEditAdminData({
+            userId: admin.userID,
+            username: admin.username,
+            email: admin.email,
+            password: "",
+            confirmPassword: ""
+        });
+        setEditFormErrors({});
+        setPasswordStrength(0);
+        setShowEditAdmin(true);
+    };
+
+    const handleUpdateAdmin = async (e) => {
+        e.preventDefault();
+
+        if (!validateEditForm()) {
+            return;
+        }
+
+        try {
+            const updateData = {
+                username: editAdminData.username,
+                email: editAdminData.email
+            };
+
+            // Only include password if it's being changed
+            if (editAdminData.password) {
+                updateData.password = editAdminData.password;
+            }
+
+            await updateAdmin(editAdminData.userId, updateData);
+            alert("Admin updated successfully!");
+            setShowEditAdmin(false);
+            setEditAdminData({ userId: null, username: "", email: "", password: "", confirmPassword: "" });
+            setEditFormErrors({});
+            setPasswordStrength(0);
+            // Refresh the data
+            fetchUsersData();
+        } catch (error) {
+            console.error("Error updating admin:", error);
+            alert("Failed to update admin: " + error.message);
         }
     };
 
@@ -269,7 +390,7 @@ const UsersManagementSection = () => {
                 ) : activeUserType === 'patients' ? (
                     <PatientsList patients={patients} onDeletePatient={handleDeletePatient} />
                 ) : (
-                    <AdminsList admins={admins} onDeleteAdmin={handleDeleteAdmin} />
+                    <AdminsList admins={admins} onDeleteAdmin={handleDeleteAdmin} onEditAdmin={handleEditAdmin} />
                 )}
             </div>
 
@@ -483,6 +604,204 @@ const UsersManagementSection = () => {
                 </div>
             )}
 
+            {/* Edit Admin Modal */}
+            {showEditAdmin && (
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+                    <div className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-600 animate-slideUp max-h-[90vh] overflow-y-auto">
+                        <h3 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
+                            <span className="text-2xl">✏️</span>
+                            Edit Admin
+                        </h3>
+
+                        <form onSubmit={handleUpdateAdmin} className="space-y-4">
+                            {/* Username Field */}
+                            <div>
+                                <label className="block text-sm font-medium mb-2 text-gray-300">
+                                    Username <span className="text-red-400">*</span>
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={editAdminData.username}
+                                        onChange={(e) => handleEditInputChange('username', e.target.value)}
+                                        className={`w-full px-4 py-2.5 pl-10 border rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:border-transparent transition-all duration-300 ${
+                                            editFormErrors.username
+                                                ? 'border-red-500 focus:ring-red-500'
+                                                : 'border-gray-600 focus:ring-purple-500'
+                                        }`}
+                                        placeholder="Enter username"
+                                    />
+                                    <span className="absolute left-3 top-3 text-gray-400">👤</span>
+                                </div>
+                                {editFormErrors.username && (
+                                    <p className="text-red-400 text-xs mt-1">{editFormErrors.username}</p>
+                                )}
+                            </div>
+
+                            {/* Email Field */}
+                            <div>
+                                <label className="block text-sm font-medium mb-2 text-gray-300">
+                                    Email Address <span className="text-red-400">*</span>
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="email"
+                                        value={editAdminData.email}
+                                        onChange={(e) => handleEditInputChange('email', e.target.value)}
+                                        className={`w-full px-4 py-2.5 pl-10 border rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:border-transparent transition-all duration-300 ${
+                                            editFormErrors.email
+                                                ? 'border-red-500 focus:ring-red-500'
+                                                : 'border-gray-600 focus:ring-purple-500'
+                                        }`}
+                                        placeholder="admin@example.com"
+                                    />
+                                    <span className="absolute left-3 top-3 text-gray-400">📧</span>
+                                </div>
+                                {editFormErrors.email && (
+                                    <p className="text-red-400 text-xs mt-1">{editFormErrors.email}</p>
+                                )}
+                            </div>
+
+                            {/* Divider */}
+                            <div className="border-t border-gray-600 pt-4">
+                                <p className="text-sm text-gray-400 mb-4">Leave password fields empty to keep current password</p>
+                            </div>
+
+                            {/* New Password Field */}
+                            <div>
+                                <label className="block text-sm font-medium mb-2 text-gray-300">
+                                    New Password (Optional)
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        value={editAdminData.password}
+                                        onChange={(e) => handleEditInputChange('password', e.target.value)}
+                                        className={`w-full px-4 py-2.5 pl-10 pr-10 border rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:border-transparent transition-all duration-300 ${
+                                            editFormErrors.password
+                                                ? 'border-red-500 focus:ring-red-500'
+                                                : 'border-gray-600 focus:ring-purple-500'
+                                        }`}
+                                        placeholder="Enter new password"
+                                    />
+                                    <span className="absolute left-3 top-3 text-gray-400">🔒</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-300 transition-colors"
+                                    >
+                                        {showPassword ? '👁️' : '👁️‍🗨️'}
+                                    </button>
+                                </div>
+                                {editFormErrors.password && (
+                                    <p className="text-red-400 text-xs mt-1">{editFormErrors.password}</p>
+                                )}
+
+                                {/* Password Strength Indicator */}
+                                {editAdminData.password && (
+                                    <div className="mt-2">
+                                        <div className="flex gap-1">
+                                            {[1, 2, 3, 4, 5].map((level) => (
+                                                <div
+                                                    key={level}
+                                                    className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                                                        level <= passwordStrength
+                                                            ? passwordStrength <= 2
+                                                                ? 'bg-red-500'
+                                                                : passwordStrength <= 3
+                                                                    ? 'bg-yellow-500'
+                                                                    : 'bg-green-500'
+                                                            : 'bg-gray-600'
+                                                    }`}
+                                                />
+                                            ))}
+                                        </div>
+                                        <p className={`text-xs mt-1 ${
+                                            passwordStrength <= 2
+                                                ? 'text-red-400'
+                                                : passwordStrength <= 3
+                                                    ? 'text-yellow-400'
+                                                    : 'text-green-400'
+                                        }`}>
+                                            Password strength: {
+                                            passwordStrength === 0 ? 'Very Weak' :
+                                                passwordStrength === 1 ? 'Weak' :
+                                                    passwordStrength === 2 ? 'Fair' :
+                                                        passwordStrength === 3 ? 'Good' :
+                                                            passwordStrength === 4 ? 'Strong' :
+                                                                'Very Strong'
+                                        }
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Confirm New Password Field */}
+                            {editAdminData.password && (
+                                <div>
+                                    <label className="block text-sm font-medium mb-2 text-gray-300">
+                                        Confirm New Password
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            value={editAdminData.confirmPassword}
+                                            onChange={(e) => handleEditInputChange('confirmPassword', e.target.value)}
+                                            className={`w-full px-4 py-2.5 pl-10 pr-10 border rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:border-transparent transition-all duration-300 ${
+                                                editFormErrors.confirmPassword
+                                                    ? 'border-red-500 focus:ring-red-500'
+                                                    : editAdminData.confirmPassword && editAdminData.password === editAdminData.confirmPassword
+                                                        ? 'border-green-500 focus:ring-green-500'
+                                                        : 'border-gray-600 focus:ring-purple-500'
+                                            }`}
+                                            placeholder="Re-enter new password"
+                                        />
+                                        <span className="absolute left-3 top-3 text-gray-400">🔒</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute right-3 top-3 text-gray-400 hover:text-gray-300 transition-colors"
+                                        >
+                                            {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                                        </button>
+                                        {editAdminData.confirmPassword && editAdminData.password === editAdminData.confirmPassword && (
+                                            <span className="absolute right-10 top-3 text-green-400">✓</span>
+                                        )}
+                                    </div>
+                                    {editFormErrors.confirmPassword && (
+                                        <p className="text-red-400 text-xs mt-1">{editFormErrors.confirmPassword}</p>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="flex gap-3 mt-6">
+                                <button
+                                    type="submit"
+                                    className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2.5 rounded-lg transition-all duration-300 transform hover:scale-105 font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                    disabled={Object.keys(editFormErrors).length > 0}
+                                >
+                                    Update Admin
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowEditAdmin(false);
+                                        setEditAdminData({ userId: null, username: "", email: "", password: "", confirmPassword: "" });
+                                        setEditFormErrors({});
+                                        setPasswordStrength(0);
+                                        setShowPassword(false);
+                                        setShowConfirmPassword(false);
+                                    }}
+                                    className="flex-1 bg-gray-600 hover:bg-gray-500 text-white py-2.5 rounded-lg transition-all duration-300 transform hover:scale-105 font-medium"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             <style jsx>{`
                 @keyframes fadeIn {
                     from { opacity: 0; }
@@ -658,7 +977,7 @@ const PatientsList = ({ patients, onDeletePatient }) => {
 };
 
 // Admins List Component
-const AdminsList = ({ admins, onDeleteAdmin }) => {
+const AdminsList = ({ admins, onDeleteAdmin, onEditAdmin }) => {
     const currentUserId = JSON.parse(localStorage.getItem("userDetails") || "{}").userID;
 
     if (admins.length === 0) {
@@ -722,6 +1041,13 @@ const AdminsList = ({ admins, onDeleteAdmin }) => {
                             </div>
 
                             <div className="flex gap-2">
+                                <button
+                                    onClick={() => onEditAdmin(admin)}
+                                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 flex items-center gap-2 shadow-lg"
+                                >
+                                    <span>✏️</span>
+                                    Edit
+                                </button>
                                 {currentUserId !== admin.userID ? (
                                     <button
                                         onClick={() => onDeleteAdmin(admin.userID, admin.username)}
@@ -732,7 +1058,7 @@ const AdminsList = ({ admins, onDeleteAdmin }) => {
                                     </button>
                                 ) : (
                                     <span className="text-gray-400 text-sm italic px-4 py-2">
-                                        Cannot delete yourself
+
                                     </span>
                                 )}
                             </div>

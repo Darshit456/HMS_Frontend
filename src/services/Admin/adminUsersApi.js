@@ -12,20 +12,15 @@ export const getAllAdmins = async () => {
 
         console.log("Admin fetching all admins...");
 
-        // Since there's no specific endpoint for all admins, we need to get all users
-        // and filter by role. You may need to create this endpoint in your backend
-        const response = await axios.get(`${USER_API_URL}/all`, {
+        const response = await axios.get(`${USER_API_URL}/all-admins`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
 
-        // Filter only admin users
-        const admins = response.data.filter(user => user.role === "Admin" || user.Role === "Admin");
-
-        console.log("Admin users response:", admins);
-        return admins;
+        console.log("Admin users response:", response.data);
+        return response.data;
 
     } catch (error) {
         console.error("Error fetching admins:", error);
@@ -99,14 +94,8 @@ export const deleteAdmin = async (userId) => {
 
         console.log("Admin deleting admin user ID:", userId);
 
-        // Prevent deleting self
-        const currentUser = JSON.parse(localStorage.getItem("userDetails"));
-        if (currentUser.userID === userId) {
-            throw new Error("You cannot delete your own admin account!");
-        }
-
-        // Delete the User record
-        const response = await axios.delete(`${USER_API_URL}/delete/${userId}`, {
+        // Use the new delete-admin endpoint
+        const response = await axios.delete(`${USER_API_URL}/delete-admin/${userId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -119,6 +108,12 @@ export const deleteAdmin = async (userId) => {
     } catch (error) {
         console.error("Error deleting admin:", error);
         console.error("Backend response:", error.response?.data);
+
+        // Handle specific error messages from backend
+        if (error.response?.data?.message) {
+            throw new Error(error.response.data.message);
+        }
+
         throw error;
     }
 };
@@ -235,6 +230,36 @@ export const deletePatient = async (patientId) => {
                 console.error("Fallback deletion also failed:", fallbackError);
                 throw fallbackError;
             }
+        }
+
+        throw error;
+    }
+};
+
+// Update admin (Admin only)
+export const updateAdmin = async (userId, updateData) => {
+    try {
+        const token = localStorage.getItem("token");
+
+        console.log("Admin updating admin user:", userId, updateData);
+
+        const response = await axios.put(`${USER_API_URL}/update-admin/${userId}`, updateData, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log("Admin update response:", response.data);
+        return response.data;
+
+    } catch (error) {
+        console.error("Error updating admin:", error);
+        console.error("Backend response:", error.response?.data);
+
+        // Handle specific error messages from backend
+        if (error.response?.data?.message) {
+            throw new Error(error.response.data.message);
         }
 
         throw error;
