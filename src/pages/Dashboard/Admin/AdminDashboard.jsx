@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import UsersManagementSection from './UsersManagementSection';
 import { getAllDoctors, getAllPatients } from '../../../services/Admin/adminUsersApi';
+import { getAdminProfile } from '../../../services/Admin/adminApi';
 
 const AdminDashboard = () => {
     const [activeSection, setActiveSection] = useState('dashboard');
@@ -21,22 +22,38 @@ const AdminDashboard = () => {
     });
 
     useEffect(() => {
-        // Load admin data from localStorage
-        const userDetails = localStorage.getItem("userDetails");
-        if (userDetails) {
-            const userData = JSON.parse(userDetails);
-            setAdminData({
-                username: userData.Username || "Administrator",
-                email: userData.Email || "admin@hospital.com",
-                userId: userData.UserID || "ADM001",
-                loginTime: new Date().toLocaleTimeString(),
-                loginDate: new Date().toLocaleDateString()
-            });
-        }
+        // Load admin data
+        loadAdminData();
 
         // Load system statistics
         loadSystemStats();
     }, []);
+
+    const loadAdminData = async () => {
+        try {
+            // Try to get from localStorage first (following pattern of doctor/patient)
+            const response = await getAdminProfile();
+            if (response.data) {
+                setAdminData({
+                    username: response.data.username || response.data.Username || "Administrator",
+                    email: response.data.email || response.data.Email || "admin@hospital.com",
+                    userId: response.data.userID || response.data.UserID || "ADM001",
+                    loginTime: new Date().toLocaleTimeString(),
+                    loginDate: new Date().toLocaleDateString()
+                });
+            }
+        } catch (error) {
+            console.error("Error loading admin data:", error);
+            // Fallback to basic admin info
+            setAdminData({
+                username: "Administrator",
+                email: "admin@hospital.com",
+                userId: "ADM001",
+                loginTime: new Date().toLocaleTimeString(),
+                loginDate: new Date().toLocaleDateString()
+            });
+        }
+    };
 
     const loadSystemStats = async () => {
         try {
