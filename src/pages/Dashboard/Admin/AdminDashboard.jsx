@@ -23,18 +23,20 @@ const AdminDashboard = () => {
         totalAdmins: 0,
         loading: true
     });
+    const [showEditProfile, setShowEditProfile] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        username: "",
+        email: ""
+    });
+    const [profileUpdateLoading, setProfileUpdateLoading] = useState(false);
 
     useEffect(() => {
-        // Load admin data
         loadAdminData();
-
-        // Load system statistics
         loadSystemStats();
     }, []);
 
     const loadAdminData = async () => {
         try {
-            // Try to get from localStorage first (following pattern of doctor/patient)
             const response = await getAdminProfile();
             if (response.data) {
                 setAdminData({
@@ -47,7 +49,6 @@ const AdminDashboard = () => {
             }
         } catch (error) {
             console.error("Error loading admin data:", error);
-            // Fallback to basic admin info
             setAdminData({
                 username: "Administrator",
                 email: "admin@hospital.com",
@@ -100,6 +101,37 @@ const AdminDashboard = () => {
         setActiveSection(section);
     };
 
+    const handleEditProfile = () => {
+        setEditFormData({
+            username: adminData.username,
+            email: adminData.email
+        });
+        setShowEditProfile(true);
+    };
+
+    const handleSaveProfile = async () => {
+        try {
+            setProfileUpdateLoading(true);
+
+            const updatedData = {
+                ...adminData,
+                username: editFormData.username,
+                email: editFormData.email
+            };
+
+            localStorage.setItem("userDetails", JSON.stringify(updatedData));
+            setAdminData(updatedData);
+            setShowEditProfile(false);
+
+            alert("Profile updated successfully!");
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            alert("Failed to update profile. Please try again.");
+        } finally {
+            setProfileUpdateLoading(false);
+        }
+    };
+
     const renderActiveSection = () => {
         switch (activeSection) {
             case 'users':
@@ -128,8 +160,7 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="h-screen w-full overflow-hidden bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 p-2 sm:p-4 flex flex-col">
-            {/* Add custom animations */}
+        <div className="h-screen w-full overflow-hidden bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 p-2 sm:p-4 flex flex-col relative">
             <style jsx>{`
                 @keyframes fadeIn {
                     from { opacity: 0; transform: translateY(10px); }
@@ -148,6 +179,17 @@ const AdminDashboard = () => {
                 .animate-pulse-hover:hover { animation: pulse 0.3s ease-in-out; }
             `}</style>
 
+            {/* Logout Button in Corner */}
+            <div className="absolute top-4 right-4 z-50">
+                <button
+                    onClick={handleLogout}
+                    className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center gap-2 shadow-lg font-medium"
+                    title="Logout"
+                >
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+
             {/* Header */}
             <div className="text-center mb-4 animate-fadeIn">
                 <h5 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-1">
@@ -161,15 +203,15 @@ const AdminDashboard = () => {
             {/* Main Content Area */}
             <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-4">
                 {/* Left Side - Admin Profile Box */}
-                <div className="w-full lg:w-80 flex-shrink-0 animate-slideIn">
-                    <div className="bg-gradient-to-br from-gray-800 to-gray-700 shadow-xl rounded-2xl p-4 sm:p-6 h-full border border-gray-700">
+                <div className="w-full lg:w-72 flex-shrink-0 animate-slideIn">
+                    <div className="bg-gradient-to-br from-gray-800 to-gray-700 shadow-xl rounded-2xl p-4 h-full border border-gray-700 flex flex-col">
                         {/* Profile Header */}
                         <div className="text-center mb-4">
                             <div className="relative inline-block">
-                                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg animate-pulse-hover mx-auto mb-3">
-                                    <span className="text-white text-3xl">👨‍💼</span>
+                                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg animate-pulse-hover mx-auto mb-3">
+                                    <span className="text-white text-2xl">👨‍💼</span>
                                 </div>
-                                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-gray-800 flex items-center justify-center">
+                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-gray-800 flex items-center justify-center">
                                     <span className="text-xs text-white">✓</span>
                                 </div>
                             </div>
@@ -177,61 +219,64 @@ const AdminDashboard = () => {
                             <p className="text-sm text-purple-400">System Administrator</p>
                         </div>
 
-                        {/* Admin Details */}
-                        <div className="space-y-3 mb-4">
+                        {/* Admin Details - Flexible content area */}
+                        <div className="flex-1 space-y-3 mb-4">
                             <div className="bg-gray-900/50 rounded-lg p-3">
-                                <div className="flex items-center gap-2 text-gray-300 mb-1">
+                                <div className="flex items-center gap-2 text-gray-300 text-sm">
                                     <span className="text-purple-400">📧</span>
-                                    <span className="text-sm truncate">{adminData.email}</span>
+                                    <span className="truncate">{adminData.email}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-gray-300">
+                                <div className="flex items-center gap-2 text-gray-300 text-sm mt-2">
                                     <span className="text-blue-400">🆔</span>
-                                    <span className="text-sm">ID: {adminData.userId}</span>
+                                    <span>ID: {adminData.userId}</span>
                                 </div>
                             </div>
 
                             <div className="bg-gray-900/50 rounded-lg p-3">
-                                <div className="flex items-center gap-2 text-gray-300 mb-1">
+                                <div className="flex items-center gap-2 text-gray-300 text-sm">
                                     <span className="text-green-400">🛡️</span>
-                                    <span className="text-sm">Full System Access</span>
+                                    <span>Full System Access</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-gray-300">
+                                <div className="flex items-center gap-2 text-gray-300 text-sm mt-2">
                                     <span className="text-yellow-400">⭐</span>
-                                    <span className="text-sm">Super Admin Privileges</span>
+                                    <span>Super Admin Privileges</span>
                                 </div>
                             </div>
 
                             <div className="bg-gray-900/50 rounded-lg p-3">
-                                <div className="text-xs text-gray-400 mb-1">Last Login</div>
-                                <div className="flex items-center gap-2 text-gray-300">
+                                <div className="text-xs text-gray-400 mb-2">Last Login</div>
+                                <div className="flex items-center gap-2 text-gray-300 text-sm">
                                     <span className="text-cyan-400">🕐</span>
-                                    <span className="text-sm">{adminData.loginTime}</span>
+                                    <span>{adminData.loginTime}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-gray-300">
+                                <div className="flex items-center gap-2 text-gray-300 text-sm mt-2">
                                     <span className="text-cyan-400">📅</span>
-                                    <span className="text-sm">{adminData.loginDate}</span>
+                                    <span>{adminData.loginDate}</span>
+                                </div>
+                            </div>
+
+                            {/* Quick Stats */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="bg-blue-900/30 rounded-lg p-3 text-center">
+                                    <div className="text-blue-400 text-sm">Active</div>
+                                    <div className="text-white font-bold">24/7</div>
+                                </div>
+                                <div className="bg-purple-900/30 rounded-lg p-3 text-center">
+                                    <div className="text-purple-400 text-sm">Session</div>
+                                    <div className="text-white font-bold">Secure</div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Quick Stats */}
-                        <div className="grid grid-cols-2 gap-2 mb-4">
-                            <div className="bg-blue-900/30 rounded-lg p-2 text-center">
-                                <div className="text-blue-400 text-sm">Active</div>
-                                <div className="text-white font-bold">24/7</div>
-                            </div>
-                            <div className="bg-purple-900/30 rounded-lg p-2 text-center">
-                                <div className="text-purple-400 text-sm">Session</div>
-                                <div className="text-white font-bold">Secure</div>
-                            </div>
+                        {/* Profile Actions - Only Edit Profile */}
+                        <div className="space-y-3">
+                            <button
+                                onClick={handleEditProfile}
+                                className="w-full bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white px-4 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg font-medium"
+                            >
+                                <span>✏️</span> Edit Profile
+                            </button>
                         </div>
-
-                        <button
-                            onClick={handleLogout}
-                            className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg"
-                        >
-                            <span>🚪</span> Logout
-                        </button>
                     </div>
                 </div>
 
@@ -255,6 +300,81 @@ const AdminDashboard = () => {
                     )}
                 </div>
             </div>
+
+            {/* Edit Profile Modal */}
+            {showEditProfile && (
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+                    <div className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-600">
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                                    <span className="text-white text-lg">✏️</span>
+                                </div>
+                                <h3 className="text-xl font-bold text-white">Edit Profile</h3>
+                            </div>
+                            <button
+                                onClick={() => setShowEditProfile(false)}
+                                className="w-8 h-8 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 rounded-lg flex items-center justify-center text-white transition-all duration-300 transform hover:scale-110"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <form onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Username</label>
+                                <input
+                                    type="text"
+                                    value={editFormData.username}
+                                    onChange={(e) => setEditFormData({...editFormData, username: e.target.value})}
+                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+                                    placeholder="Enter username"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                                <input
+                                    type="email"
+                                    value={editFormData.email}
+                                    onChange={(e) => setEditFormData({...editFormData, email: e.target.value})}
+                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+                                    placeholder="admin@example.com"
+                                    required
+                                />
+                            </div>
+
+                            <div className="flex gap-3 mt-6">
+                                <button
+                                    type="submit"
+                                    disabled={profileUpdateLoading}
+                                    className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white py-3 rounded-lg transition-all duration-300 transform hover:scale-105 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {profileUpdateLoading ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            Saving...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span>💾</span>
+                                            Save Changes
+                                        </>
+                                    )}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowEditProfile(false)}
+                                    className="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white py-3 rounded-lg transition-all duration-300 transform hover:scale-105 font-medium"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -345,17 +465,49 @@ const DashboardOverview = ({ onQuickAction, systemStats }) => {
 
     return (
         <div className="space-y-4">
-            {/* Hospital Logo and Title */}
-            <div className="bg-gradient-to-r from-gray-800/50 to-gray-700/50 backdrop-blur-sm shadow-xl rounded-2xl p-4 border border-gray-700 animate-fadeIn">
-                <div className="flex items-center justify-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/30">
-                        <span className="text-3xl">🏥</span>
+            {/* Enhanced Hospital Logo and Title */}
+            <div className="bg-gradient-to-r from-gray-800/50 to-gray-700/50 backdrop-blur-sm shadow-xl rounded-2xl p-6 border border-gray-700 animate-fadeIn relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-blue-500/5 to-indigo-500/5"></div>
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-cyan-400/10 to-blue-600/10 rounded-full blur-3xl"></div>
+                <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-br from-indigo-400/10 to-purple-600/10 rounded-full blur-2xl"></div>
+
+                <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-6">
+                    <div className="relative group">
+                        <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-cyan-500/30 transition-all duration-500 group-hover:scale-110 group-hover:shadow-cyan-500/50">
+                            <span className="text-4xl animate-pulse">🏥</span>
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-3xl opacity-20 blur-lg group-hover:opacity-30 transition-opacity duration-500"></div>
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                            <span className="text-xs text-white font-bold">✓</span>
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+
+                    <div className="text-center sm:text-left">
+                        <h1 className="text-3xl sm:text-4xl font-bold mb-2 bg-gradient-to-r from-cyan-300 via-blue-400 to-indigo-400 bg-clip-text text-transparent leading-tight">
                             Hospital Management System
                         </h1>
-                        <p className="text-gray-400 text-sm">Administrative Control Center</p>
+                        <div className="flex flex-col sm:flex-row items-center gap-3">
+                            <p className="text-lg text-gray-300 font-medium">Administrative Control Center</p>
+                            <div className="flex items-center gap-2 bg-green-900/30 px-3 py-1 rounded-full border border-green-500/30">
+                                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                <span className="text-green-300 text-sm font-medium">Online</span>
+                            </div>
+                        </div>
+
+                        <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-4 text-sm text-gray-400">
+                            <div className="flex items-center gap-1">
+                                <span className="text-cyan-400">🔧</span>
+                                <span>Version 2.0</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <span className="text-indigo-400">⚡</span>
+                                <span>High Performance</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <span className="text-blue-400">🛡️</span>
+                                <span>Secure Platform</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -375,7 +527,6 @@ const DashboardOverview = ({ onQuickAction, systemStats }) => {
                             className={`relative bg-gradient-to-br ${stat.bgColor} backdrop-blur-sm p-3 sm:p-4 rounded-xl border border-gray-700 transform transition-all duration-300 hover:scale-105 hover:-translate-y-1 animate-fadeIn overflow-hidden group`}
                             style={{ animationDelay: `${index * 0.1}s` }}
                         >
-                            {/* Background decoration */}
                             <div className={`absolute -right-4 -top-4 w-20 h-20 bg-gradient-to-br ${stat.color} opacity-20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500`}></div>
 
                             <div className="relative flex items-center justify-between">
@@ -412,7 +563,6 @@ const DashboardOverview = ({ onQuickAction, systemStats }) => {
                             className={`relative bg-gradient-to-r ${action.color} ${action.hoverColor} text-white p-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${action.shadowColor} text-left flex items-start gap-3 animate-fadeIn overflow-hidden group`}
                             style={{ animationDelay: `${index * 0.1}s` }}
                         >
-                            {/* Background animation */}
                             <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
 
                             <span className="text-2xl relative z-10">{action.icon}</span>
@@ -421,30 +571,11 @@ const DashboardOverview = ({ onQuickAction, systemStats }) => {
                                 <div className="text-sm opacity-90">{action.description}</div>
                             </div>
 
-                            {/* Arrow indicator */}
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
                                 <span className="text-xl">→</span>
                             </div>
                         </button>
                     ))}
-                </div>
-            </div>
-
-            {/* Recent Activity */}
-            <div className="bg-gray-800/50 backdrop-blur-sm shadow-xl rounded-2xl p-4 sm:p-6 border border-gray-700 animate-fadeIn">
-                <h3 className="text-lg font-semibold mb-4 text-white flex items-center gap-2">
-                    <div className="w-8 h-8 bg-gradient-to-br from-rose-500 to-pink-500 rounded-lg flex items-center justify-center shadow-lg shadow-rose-500/30">
-                        <span className="text-white text-sm">🕐</span>
-                    </div>
-                    Recent System Activity
-                </h3>
-                <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl blur-xl"></div>
-                    <div className="relative text-center py-8">
-                        <div className="text-gray-500 text-6xl mb-4 animate-pulse">📊</div>
-                        <p className="text-gray-400">Activity logs will appear here</p>
-                        <p className="text-gray-500 text-sm mt-2">System monitoring active</p>
-                    </div>
                 </div>
             </div>
         </div>
