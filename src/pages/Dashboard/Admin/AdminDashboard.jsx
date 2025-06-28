@@ -1,8 +1,10 @@
 // File Location: src/pages/Dashboard/Admin/AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import UsersManagementSection from './UsersManagementSection';
+import AdminAppointmentsSection from './AdminAppointmentsSection';
 import {getAllAdmins, getAllDoctors, getAllPatients} from '../../../services/Admin/adminUsersApi';
 import { getAdminProfile } from '../../../services/Admin/adminApi';
+import { getAppointmentStats } from '../../../services/Admin/adminAppointmentApi';
 
 const AdminDashboard = () => {
     const [activeSection, setActiveSection] = useState('dashboard');
@@ -58,19 +60,18 @@ const AdminDashboard = () => {
 
     const loadSystemStats = async () => {
         try {
-            const [doctorsData, patientsData, adminData] = await Promise.all([
+            const [doctorsData, patientsData, adminData, appointmentStats] = await Promise.all([
                 getAllDoctors(),
                 getAllPatients(),
-                getAllAdmins()
+                getAllAdmins(),
+                getAppointmentStats()
             ]);
-
-
 
             setSystemStats({
                 totalDoctors: doctorsData.length || 0,
                 totalPatients: patientsData.length || 0,
                 totalUsers: (doctorsData.length || 0) + (patientsData.length || 0) + (adminData.length || 0),
-                totalAppointments: 0, // Will be loaded when appointment API is implemented
+                totalAppointments: appointmentStats.total || 0,
                 totalAdmins: adminData.length || 0,
                 loading: false
             });
@@ -104,13 +105,7 @@ const AdminDashboard = () => {
             case 'users':
                 return <UsersManagementSection />;
             case 'appointments':
-                return (
-                    <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 animate-fadeIn">
-                        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-                            Appointments Management - Coming Soon
-                        </h2>
-                    </div>
-                );
+                return <AdminAppointmentsSection />;
             case 'medical-records':
                 return (
                     <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 animate-fadeIn">
