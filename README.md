@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Davakhana Logo](https://via.placeholder.com/200x80/4F46E5/ffffff?text=DAVAKHANA)
+![Davakhana Logo](D:\Hospital Management System\Frontend\Hospital-Frontend\src\assets\Medisoft Hospital Management Logo.png)
 
 **Digitizing Healthcare for a Healthier Tomorrow** ✨
 
@@ -812,7 +812,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 <div align="center">
 
-## 🌟 Star Us on GitHub!
+## 🌟 Star me on GitHub!
 
 If you found this project helpful, please consider giving it a ⭐️
 
@@ -821,7 +821,7 @@ If you found this project helpful, please consider giving it a ⭐️
 
 ---
 
-**Made with ❤️ by the Davakhana Team**
+**Made with ❤️ by Darshit Gohil**
 
 *"Building the future of healthcare, one line of code at a time."* 💻🏥
 

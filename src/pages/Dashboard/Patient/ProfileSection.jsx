@@ -22,49 +22,29 @@ const ProfileSection = () => {
 
     const handleSave = async () => {
         try {
-            console.log("Patient ID:", user.patientID);
-            console.log("Edit data:", editData);
-
             await updatePatientProfile(user.patientID, editData);
-
-            // Update local state (for immediate UI update)
             setUser({...user, ...editData});
-
-            // Update localStorage so it persists
             const updatedUserDetails = {...user, ...editData};
             localStorage.setItem("userDetails", JSON.stringify(updatedUserDetails));
-
             setIsEditOpen(false);
             alert("Profile updated successfully!");
-
-            // Refresh the page after successful update
             window.location.reload();
-
         } catch (error) {
             console.error("Update error:", error);
-            console.error("Backend error details:", error.response?.data);
             alert("Failed to update profile: " + error.message);
         }
     };
 
     const handleLogout = () => {
-        // Show confirmation dialog
         if (window.confirm("Are you sure you want to logout?")) {
             try {
-                // Clear all stored data
                 localStorage.removeItem("token");
                 localStorage.removeItem("userDetails");
                 localStorage.removeItem("userRole");
-
-                // Clear session storage as well (if you're using it)
                 sessionStorage.clear();
-
-                // Redirect to login page
-                window.location.href = "/"; // Adjust this path to your login route
-
+                window.location.href = "/";
             } catch (error) {
                 console.error("Logout error:", error);
-                // Even if there's an error, try to redirect
                 window.location.href = "/";
             }
         }
@@ -88,7 +68,7 @@ const ProfileSection = () => {
 
     if (loading) {
         return (
-            <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 flex items-center justify-center">
+            <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 h-full flex items-center justify-center">
                 <div className="text-gray-500">Loading profile...</div>
             </div>
         );
@@ -96,14 +76,14 @@ const ProfileSection = () => {
 
     if (error) {
         return (
-            <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 flex items-center justify-center">
+            <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 h-full flex items-center justify-center">
                 <div className="text-red-500">{error}</div>
             </div>
         );
     }
 
     return (
-        <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6">
+        <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 h-full flex flex-col">
             <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Profile</h2>
             <div className="flex items-center space-x-4">
                 <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-full flex-shrink-0">
@@ -117,12 +97,12 @@ const ProfileSection = () => {
             </div>
             <div className="mt-4 text-sm text-gray-700 dark:text-gray-300">
                 <p><span className="font-medium">Gender:</span> {user.gender}</p>
-                <p><span className="font-medium">Date of Birth:</span> {user.dateOfBirth}</p>
+                <p><span className="font-medium">Date of Birth:</span> {new Date(user.dateOfBirth).toLocaleDateString()}</p>
                 <p><span className="font-medium">Address:</span> {user.address}</p>
             </div>
 
-            {/* Buttons Container - Edit Profile and Logout */}
-            <div className="mt-4 flex gap-3">
+            {/* Buttons Container */}
+            <div className="mt-auto flex gap-3">
                 <button
                     onClick={handleEditClick}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex-1"

@@ -10,11 +10,10 @@ const AppointmentsSection = () => {
     const [selectedAppointment, setSelectedAppointment] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
 
-    // Function to format date and time from your API response
     const formatDateTime = (dateTimeString) => {
         try {
             const date = new Date(dateTimeString);
-            const dateStr = date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+            const dateStr = date.toLocaleDateString('en-CA');
             const timeStr = date.toLocaleTimeString('en-US', {
                 hour: 'numeric',
                 minute: '2-digit',
@@ -27,32 +26,6 @@ const AppointmentsSection = () => {
         }
     };
 
-    // Function to get status color classes for all appointment statuses
-    const getStatusColor = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'confirmed':
-            case 'upcoming':
-            case 'scheduled':
-            case 'accepted':
-                return "text-green-400";
-            case 'cancelled':
-            case 'canceled':
-            case 'rejected':
-                return "text-red-400";
-            case 'pending':
-                return "text-yellow-400";
-            case 'completed':
-            case 'done':
-                return "text-blue-400";
-            case 'in-progress':
-            case 'ongoing':
-                return "text-purple-400";
-            default:
-                return "text-gray-400";
-        }
-    };
-
-    // Function to get status badge styling
     const getStatusBadge = (status) => {
         switch (status?.toLowerCase()) {
             case 'confirmed':
@@ -69,15 +42,11 @@ const AppointmentsSection = () => {
             case 'completed':
             case 'done':
                 return "bg-blue-500/20 text-blue-300 border border-blue-500/30";
-            case 'in-progress':
-            case 'ongoing':
-                return "bg-purple-500/20 text-purple-300 border border-purple-500/30";
             default:
                 return "bg-gray-500/20 text-gray-300 border border-gray-500/30";
         }
     };
 
-    // Function to fetch doctor name by ID
     const fetchDoctorName = async (doctorId) => {
         try {
             const doctor = await getDoctorById(doctorId);
@@ -88,7 +57,6 @@ const AppointmentsSection = () => {
         }
     };
 
-    // Function to fetch appointments
     const fetchAppointments = async () => {
         try {
             setLoading(true);
@@ -96,12 +64,9 @@ const AppointmentsSection = () => {
 
             const appointmentsData = await getPatientAppointments();
 
-            // Transform the data and fetch doctor names
             const transformedAppointments = await Promise.all(
                 appointmentsData.map(async (appointment) => {
                     const { date, time } = formatDateTime(appointment.dateTime);
-
-                    // Fetch doctor name using doctorID
                     const doctorName = await fetchDoctorName(appointment.doctorID);
 
                     return {
@@ -117,8 +82,6 @@ const AppointmentsSection = () => {
             );
 
             setAppointments(transformedAppointments);
-            console.log("Transformed appointments:", transformedAppointments);
-
         } catch (err) {
             console.error("Failed to fetch appointments:", err);
             setError("Failed to load appointments. Please try again.");
@@ -128,43 +91,37 @@ const AppointmentsSection = () => {
         }
     };
 
-    // Open appointment detail modal
     const openAppointmentDetail = (appointment) => {
         setSelectedAppointment(appointment);
         setShowDetailModal(true);
     };
 
-    // Close appointment detail modal
     const closeAppointmentDetail = () => {
         setSelectedAppointment(null);
         setShowDetailModal(false);
     };
 
-    // Fetch appointments on component mount
     useEffect(() => {
         fetchAppointments();
     }, []);
 
-    // Auto-refresh every 30 seconds for real-time updates
     useEffect(() => {
         const interval = setInterval(() => {
             fetchAppointments();
-        }, 30000); // 30 seconds
+        }, 30000);
 
         return () => clearInterval(interval);
     }, []);
 
     if (loading) {
         return (
-            <div className="bg-gradient-to-br from-gray-800 to-gray-700 shadow-xl rounded-2xl p-4 h-full border border-gray-600 flex flex-col group">
-                <h2 className="text-lg font-semibold mb-4 text-white flex items-center gap-3">
-                    <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg animate-pulse">
-                        <FaCalendarAlt className="text-blue-600 dark:text-blue-300" />
-                    </div>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-md h-full flex flex-col">
+                <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white flex items-center gap-3">
+                    <FaCalendarAlt className="text-blue-600" />
                     Your Appointments
                 </h2>
                 <div className="flex-1 flex items-center justify-center">
-                    <div className="text-gray-400 animate-pulse">Loading appointments...</div>
+                    <div className="text-gray-500 dark:text-gray-400 animate-pulse">Loading appointments...</div>
                 </div>
             </div>
         );
@@ -172,18 +129,16 @@ const AppointmentsSection = () => {
 
     if (error) {
         return (
-            <div className="bg-gradient-to-br from-gray-800 to-gray-700 shadow-xl rounded-2xl p-4 h-full border border-gray-600 flex flex-col group">
-                <h2 className="text-lg font-semibold mb-4 text-white flex items-center gap-3">
-                    <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
-                        <FaCalendarAlt className="text-blue-600 dark:text-blue-300" />
-                    </div>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-md h-full flex flex-col">
+                <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white flex items-center gap-3">
+                    <FaCalendarAlt className="text-blue-600" />
                     Your Appointments
                 </h2>
                 <div className="flex-1 flex flex-col items-center justify-center space-y-4">
-                    <div className="text-red-400">{error}</div>
+                    <div className="text-red-500 text-center">{error}</div>
                     <button
                         onClick={fetchAppointments}
-                        className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105"
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
                     >
                         Retry
                     </button>
@@ -194,11 +149,9 @@ const AppointmentsSection = () => {
 
     return (
         <>
-            <div className="bg-gradient-to-br from-gray-800 to-gray-700 shadow-xl rounded-2xl p-4 h-full border border-gray-600 flex flex-col group">
-                <h2 className="text-lg font-semibold mb-4 text-white flex items-center gap-3">
-                    <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg animate-pulse">
-                        <FaCalendarAlt className="text-blue-600 dark:text-blue-300" />
-                    </div>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-md h-full flex flex-col">
+                <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white flex items-center gap-3">
+                    <FaCalendarAlt className="text-blue-600" />
                     Your Appointments
                     {appointments.length > 0 && (
                         <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
@@ -206,41 +159,39 @@ const AppointmentsSection = () => {
                         </span>
                     )}
                 </h2>
-                <div className="overflow-y-auto grow custom-scroll group-hover:scroll-visible pr-2">
-                    <div className="space-y-4">
+                <div className="overflow-y-auto flex-1 custom-scroll">
+                    <div className="space-y-3">
                         {appointments.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                            <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
                                 <div className="text-6xl mb-4 opacity-50 animate-pulse">📅</div>
-                                <h3 className="text-lg font-medium mb-2 text-gray-300">No appointments found</h3>
+                                <h3 className="text-lg font-medium mb-2 text-gray-600 dark:text-gray-300">No appointments found</h3>
                                 <p className="text-sm text-center">Your upcoming appointments will appear here</p>
                             </div>
                         ) : (
-                            appointments.map((appt) => (
+                            appointments.slice(0, 4).map((appt) => (
                                 <div
                                     key={appt.id}
-                                    className="bg-gray-900/50 backdrop-blur-sm border border-gray-600 rounded-xl p-4 hover:bg-gray-900/70 hover:border-blue-500/50 transition-all duration-300 cursor-pointer group transform hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/20"
+                                    className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-4 hover:shadow-md transition-all duration-300 cursor-pointer"
                                     onClick={() => openAppointmentDetail(appt)}
                                 >
-                                    <div className="flex justify-between items-start mb-3">
+                                    <div className="flex justify-between items-start">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-2">
-                                                <FaCalendarAlt className="text-blue-400 text-sm" />
-                                                <p className="font-medium text-white">{appt.date}</p>
-                                                <FaClock className="text-green-400 text-sm ml-2" />
-                                                <p className="text-green-300">{appt.time}</p>
+                                                <FaUserMd className="text-purple-500 text-sm" />
+                                                <p className="font-medium text-gray-800 dark:text-white">{appt.doctor}</p>
                                             </div>
-
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <FaUserMd className="text-purple-400 text-sm" />
-                                                <p className="text-gray-300">{appt.doctor}</p>
+                                            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+                                                <span className="flex items-center gap-1">
+                                                    <FaCalendarAlt className="text-blue-500 text-xs" />
+                                                    {appt.date}
+                                                </span>
+                                                <span className="flex items-center gap-1">
+                                                    <FaClock className="text-green-500 text-xs" />
+                                                    {appt.time}
+                                                </span>
                                             </div>
-
-                                            <div className="flex items-center gap-2">
-                                                <FaNotesMedical className="text-yellow-400 text-sm" />
-                                                <p className="text-gray-400 text-sm">{appt.reason}</p>
-                                            </div>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{appt.reason}</p>
                                         </div>
-
                                         <div className="flex flex-col items-end gap-2">
                                             <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(appt.status)}`}>
                                                 {appt.status}
@@ -250,7 +201,7 @@ const AppointmentsSection = () => {
                                                     e.stopPropagation();
                                                     openAppointmentDetail(appt);
                                                 }}
-                                                className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white px-3 py-1 rounded-lg text-xs flex items-center gap-1 transition-all duration-300 transform hover:scale-105 opacity-0 group-hover:opacity-100"
+                                                className="text-blue-600 hover:text-blue-700 text-sm flex items-center gap-1"
                                             >
                                                 <FaEye className="text-xs" />
                                                 View
@@ -262,13 +213,17 @@ const AppointmentsSection = () => {
                         )}
                     </div>
                 </div>
+                {appointments.length > 4 && (
+                    <button className="mt-3 text-center text-blue-600 hover:text-blue-700 text-sm font-medium">
+                        View All Appointments ({appointments.length})
+                    </button>
+                )}
             </div>
 
             {/* Appointment Detail Modal */}
             {showDetailModal && selectedAppointment && (
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-                    <div className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl border border-gray-600 animate-scaleIn">
-                        {/* Header */}
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl shadow-2xl">
                         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
@@ -287,36 +242,35 @@ const AppointmentsSection = () => {
                             </div>
                         </div>
 
-                        {/* Content */}
                         <div className="p-6 space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="bg-blue-900/20 p-4 rounded-xl border border-blue-500/30">
-                                    <h3 className="font-semibold text-blue-300 mb-3 flex items-center gap-2">
+                                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl">
+                                    <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-3 flex items-center gap-2">
                                         <FaCalendarAlt />
                                         Date & Time
                                     </h3>
-                                    <p className="text-white text-lg">{selectedAppointment.date}</p>
-                                    <p className="text-gray-300">{selectedAppointment.time}</p>
+                                    <p className="text-gray-800 dark:text-white text-lg">{selectedAppointment.date}</p>
+                                    <p className="text-gray-600 dark:text-gray-300">{selectedAppointment.time}</p>
                                 </div>
 
-                                <div className="bg-purple-900/20 p-4 rounded-xl border border-purple-500/30">
-                                    <h3 className="font-semibold text-purple-300 mb-3 flex items-center gap-2">
+                                <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl">
+                                    <h3 className="font-semibold text-purple-800 dark:text-purple-300 mb-3 flex items-center gap-2">
                                         <FaUserMd />
                                         Doctor
                                     </h3>
-                                    <p className="text-white text-lg">{selectedAppointment.doctor}</p>
+                                    <p className="text-gray-800 dark:text-white text-lg">{selectedAppointment.doctor}</p>
                                 </div>
 
-                                <div className="bg-yellow-900/20 p-4 rounded-xl border border-yellow-500/30 md:col-span-2">
-                                    <h3 className="font-semibold text-yellow-300 mb-3 flex items-center gap-2">
+                                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl md:col-span-2">
+                                    <h3 className="font-semibold text-yellow-800 dark:text-yellow-300 mb-3 flex items-center gap-2">
                                         <FaNotesMedical />
                                         Reason for Visit
                                     </h3>
-                                    <p className="text-gray-300">{selectedAppointment.reason}</p>
+                                    <p className="text-gray-700 dark:text-gray-300">{selectedAppointment.reason}</p>
                                 </div>
 
-                                <div className="bg-gray-900/50 p-4 rounded-xl border border-gray-500/30 md:col-span-2">
-                                    <h3 className="font-semibold text-gray-300 mb-3">Status</h3>
+                                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl md:col-span-2">
+                                    <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3">Status</h3>
                                     <span className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusBadge(selectedAppointment.status)}`}>
                                         {selectedAppointment.status}
                                     </span>
@@ -324,11 +278,10 @@ const AppointmentsSection = () => {
                             </div>
                         </div>
 
-                        {/* Footer */}
-                        <div className="bg-gray-900/50 p-6 border-t border-gray-600 rounded-b-2xl">
+                        <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-b-2xl">
                             <button
                                 onClick={closeAppointmentDetail}
-                                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 font-semibold"
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-xl transition-all duration-300 font-semibold"
                             >
                                 Close
                             </button>
@@ -338,20 +291,9 @@ const AppointmentsSection = () => {
             )}
 
             <style jsx>{`
-                @keyframes fadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                @keyframes scaleIn {
-                    from { opacity: 0; transform: scale(0.9); }
-                    to { opacity: 1; transform: scale(1); }
-                }
-                .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
-                .animate-scaleIn { animation: scaleIn 0.3s ease-out; }
-                
                 .custom-scroll {
                     scrollbar-width: thin;
-                    scrollbar-color: #8b5cf6 transparent;
+                    scrollbar-color: #cbd5e1 transparent;
                 }
                 .custom-scroll::-webkit-scrollbar {
                     width: 6px;
@@ -360,12 +302,17 @@ const AppointmentsSection = () => {
                     background: transparent;
                 }
                 .custom-scroll::-webkit-scrollbar-thumb {
-                    background: linear-gradient(to bottom, #8b5cf6, #a855f7);
+                    background: #cbd5e1;
                     border-radius: 3px;
                 }
                 .custom-scroll::-webkit-scrollbar-thumb:hover {
-                    background: linear-gradient(to bottom, #7c3aed, #9333ea);
+                    background: #94a3b8;
                 }
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
             `}</style>
         </>
     );

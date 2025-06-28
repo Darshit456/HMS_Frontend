@@ -27,7 +27,8 @@ const PatientDashboard = () => {
                     Your Health Dashboard - Manage your care with confidence
                 </p>
             </div>
-            {/* Single View Grid Layout - Same as Doctor */}
+
+            {/* Single View Grid Layout - No Scrolling */}
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-4 min-h-0">
                 {/* Top Row - Main Content */}
                 <div className="lg:col-span-3 min-h-0">
@@ -42,21 +43,19 @@ const PatientDashboard = () => {
                     </div>
                 </div>
 
-                <div className="lg:col-span-3 min-h-0">
+                <div className="lg:col-span-3 lg:row-span-2 min-h-0">
                     <div className="h-full">
-                        <NotificationsSection />
+                        <RequestAppointmentCard />
                     </div>
                 </div>
 
                 {/* Bottom Row - Secondary Content */}
-                <div className="lg:col-span-6 min-h-0">
-                    <div className="h-full">
-                        <MedicalRecordsSection />
-                    </div>
+                <div className="lg:col-span-3 min-h-0">
+                    <NotificationsSection />
                 </div>
 
                 <div className="lg:col-span-6 min-h-0">
-                    <RequestAppointmentCard />
+                    <MedicalRecordsSection />
                 </div>
             </div>
         </div>
