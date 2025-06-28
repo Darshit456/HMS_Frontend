@@ -12,7 +12,7 @@ const Login = () => {
             <div className="w-full max-w-4xl bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden flex flex-col md:flex-row">
                 {/* Left Side */}
                 <div className="w-full md:w-1/2 p-8 md:p-10 space-y-6">
-                    <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">Davakhana</h1>
+                    <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">MEDISOFT</h1>
                     <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
                         Digitizing Healthcare for a Healthier Tomorrow.
                     </h2>

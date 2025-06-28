@@ -1,10 +1,14 @@
-# 🏥 Davakhana - Hospital Management System
+# 🏥 MEDISOFT - Hospital Management System
 
 <div align="center">
+<img src="./src/assets/Medisoft%20Hospital%20Management%20Logo.png" alt="MEDISOFT Logo" width="200"/>
 
-![Davakhana Logo](D:\Hospital Management System\Frontend\Hospital-Frontend\src\assets\Medisoft Hospital Management Logo.png)
 
 **Digitizing Healthcare for a Healthier Tomorrow** ✨
+
+<img src="./src/assets/Screenshots/login.png" alt="MEDISOFT Logo" width="1000"/>
+
+
 
 [![React](https://img.shields.io/badge/React-19.0.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
 [![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
@@ -13,17 +17,19 @@
 
 [📖 Documentation](#-project-structure) • [🗄️ Database Setup](#-database-setup) • [🐛 Report Bug](https://github.com/Darshit456/HMS_Frontend/issues) • [💡 Request Feature](https://github.com/Darshit456/HMS_Frontend/issues)
 
+
+
 ---
 
 *A modern hospital management system that bridges the gap between patients, healthcare providers, and administrative staff through an intuitive web interface.*
 
 </div>
 
-## 🌟 Why Davakhana?
+## 🌟 Why MEDISOFT ?
 
-> **"Healthcare shouldn't be complicated. Davakhana makes it simple."**
+> **"Healthcare shouldn't be complicated. MEDISOFT makes it simple."**
 
-Modern healthcare management requires intuitive, secure, and efficient digital solutions. Davakhana delivers exactly that with a complete end-to-end solution.
+Modern healthcare management requires intuitive, secure, and efficient digital solutions. MEDISOFT delivers exactly that with a complete end-to-end solution.
 
 ### 🎯 The Problem We Solve
 - 😩 **Complex healthcare workflows** that slow down patient care
@@ -43,7 +49,7 @@ Modern healthcare management requires intuitive, secure, and efficient digital s
 
 ## 🎬 Demo Videos
 
-*Experience Davakhana in action through our comprehensive demo videos*
+*Experience MEDISOFT in action through our comprehensive demo videos*
 
 
 *Videos will showcase real-world usage scenarios and highlight key functionalities*
@@ -148,9 +154,9 @@ dotnet run
 ### 🚀 Quick Database Setup
 
 1. **Download Database Backup**
-    - Navigate to `Hospital_Management_System/Database/`
-    - Download `HospitalManagement.bak.zip`
-    - Extract to accessible location (e.g., `C:\DatabaseBackups\`)
+   - Navigate to `Hospital_Management_System/Database/`
+   - Download `HospitalManagement.bak.zip`
+   - Extract to accessible location (e.g., `C:\DatabaseBackups\`)
 
 2. **Restore Database**
    ```sql
@@ -205,8 +211,8 @@ dotnet run
 #### 1️⃣ **Clone Repositories**
 ```bash
 # Create project directory
-mkdir davakhana-project
-cd davakhana-project
+mkdir medisoft-project
+cd medisoft-project
 
 # Clone frontend
 git clone https://github.com/Darshit456/HMS_Frontend.git frontend
@@ -224,7 +230,7 @@ npm install
 
 # Create environment file
 echo "VITE_API_URL=https://localhost:7195" > .env.local
-echo "VITE_APP_NAME=Davakhana" >> .env.local
+echo "VITE_APP_NAME=MEDISOFT" >> .env.local
 ```
 
 #### 3️⃣ **Backend Setup**
@@ -588,7 +594,7 @@ VITE_API_URL=https://localhost:7195
 VITE_API_TIMEOUT=30000
 
 # Application Settings
-VITE_APP_NAME=Davakhana
+VITE_APP_NAME=MEDISOFT
 VITE_APP_VERSION=1.0.0
 
 # Development Settings
@@ -602,21 +608,21 @@ Update `appsettings.json`:
 
 ```json
 {
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=HospitalManagementDB;Trusted_Connection=true;TrustServerCertificate=true;"
-  },
-  "JwtSettings": {
-    "SecretKey": "YourSecretKeyHere",
-    "Issuer": "HospitalManagementSystem",
-    "Audience": "HospitalUsers",
-    "ExpiryMinutes": 60
-  },
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  }
+   "ConnectionStrings": {
+      "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=HospitalManagementDB;Trusted_Connection=true;TrustServerCertificate=true;"
+   },
+   "JwtSettings": {
+      "SecretKey": "YourSecretKeyHere",
+      "Issuer": "HospitalManagementSystem",
+      "Audience": "HospitalUsers",
+      "ExpiryMinutes": 60
+   },
+   "Logging": {
+      "LogLevel": {
+         "Default": "Information",
+         "Microsoft.AspNetCore": "Warning"
+      }
+   }
 }
 ```
 
@@ -704,9 +710,9 @@ Azure deployment will include:
 
 ```json
 {
-  "vitest": "^1.0.0",                    // Unit testing
-  "@testing-library/react": "^14.0.0",  // Component testing
-  "cypress": "^13.0.0"                  // E2E testing
+   "vitest": "^1.0.0",                    // Unit testing
+   "@testing-library/react": "^14.0.0",  // Component testing
+   "cypress": "^13.0.0"                  // E2E testing
 }
 ```
 
