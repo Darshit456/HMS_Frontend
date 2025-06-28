@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import UsersManagementSection from './UsersManagementSection';
 import AdminAppointmentsSection from './AdminAppointmentsSection';
+import AdminMedicalRecordsSection from './AdminMedicalRecordsSection';
 import {getAllAdmins, getAllDoctors, getAllPatients} from '../../../services/Admin/adminUsersApi';
 import { getAdminProfile } from '../../../services/Admin/adminApi';
 import { getAppointmentStats } from '../../../services/Admin/adminAppointmentApi';
@@ -139,13 +140,7 @@ const AdminDashboard = () => {
             case 'appointments':
                 return <AdminAppointmentsSection />;
             case 'medical-records':
-                return (
-                    <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 animate-fadeIn">
-                        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-                            Medical Records Management - Coming Soon
-                        </h2>
-                    </div>
-                );
+                return <AdminMedicalRecordsSection />;
             case 'notifications':
                 return (
                     <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 animate-fadeIn">
@@ -446,7 +441,7 @@ const DashboardOverview = ({ onQuickAction, systemStats }) => {
         {
             id: 'medical-records',
             title: 'Medical Records',
-            description: 'Access and manage patient records',
+            description: 'Access and manage patient medical records',
             icon: '📋',
             color: 'from-purple-500 to-pink-600',
             hoverColor: 'hover:from-purple-600 hover:to-pink-700',
