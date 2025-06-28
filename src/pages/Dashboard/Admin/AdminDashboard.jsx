@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import UsersManagementSection from './UsersManagementSection';
 import AdminAppointmentsSection from './AdminAppointmentsSection';
 import AdminMedicalRecordsSection from './AdminMedicalRecordsSection';
+import AdminNotificationsSection from './AdminNotificationsSection';
 import {getAllAdmins, getAllDoctors, getAllPatients} from '../../../services/Admin/adminUsersApi';
 import { getAdminProfile } from '../../../services/Admin/adminApi';
 import { getAppointmentStats } from '../../../services/Admin/adminAppointmentApi';
@@ -142,13 +143,7 @@ const AdminDashboard = () => {
             case 'medical-records':
                 return <AdminMedicalRecordsSection />;
             case 'notifications':
-                return (
-                    <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 animate-fadeIn">
-                        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-                            Notifications Management - Coming Soon
-                        </h2>
-                    </div>
-                );
+                return <AdminNotificationsSection />;
             default:
                 return <DashboardOverview onQuickAction={handleQuickAction} systemStats={systemStats} />;
         }
