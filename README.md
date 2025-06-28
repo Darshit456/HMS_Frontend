@@ -7,6 +7,19 @@
 **Digitizing Healthcare for a Healthier Tomorrow** ✨
 
 <img src="./src/assets/Screenshots/login.png" alt="MEDISOFT Logo" width="1000"/>
+<img src="./src/assets/Screenshots/1.png" alt="MEDISOFT Logo" width="1000"/>
+<img src="./src/assets/Screenshots/2.png" alt="MEDISOFT Logo" width="1000"/>
+<img src="./src/assets/Screenshots/3.png" alt="MEDISOFT Logo" width="1000"/>
+<img src="./src/assets/Screenshots/4.png" alt="MEDISOFT Logo" width="1000"/>
+<img src="./src/assets/Screenshots/5.png" alt="MEDISOFT Logo" width="1000"/>
+<img src="./src/assets/Screenshots/6.png" alt="MEDISOFT Logo" width="1000"/>
+<img src="./src/assets/Screenshots/7.png" alt="MEDISOFT Logo" width="1000"/>
+<img src="./src/assets/Screenshots/8.png" alt="MEDISOFT Logo" width="1000"/>
+<img src="./src/assets/Screenshots/9.png" alt="MEDISOFT Logo" width="1000"/>
+<img src="./src/assets/Screenshots/10.png" alt="MEDISOFT Logo" width="1000"/>
+<img src="./src/assets/Screenshots/11.png" alt="MEDISOFT Logo" width="1000"/>
+
+
 
 
 
@@ -50,6 +63,12 @@ Modern healthcare management requires intuitive, secure, and efficient digital s
 ## 🎬 Demo Videos
 
 *Experience MEDISOFT in action through our comprehensive demo videos*
+<h2 align="center">🎬 MEDISOFT Demo Video</h2>
+<p align="center">
+  <a href="https://youtu.be/7dr-4KOUeFk" target="_blank">
+    <img src="https://img.youtube.com/vi/7dr-4KOUeFk/hqdefault.jpg" alt="Watch MEDISOFT Demo" width="700">
+  </a>
+</p>
 
 
 *Videos will showcase real-world usage scenarios and highlight key functionalities*
