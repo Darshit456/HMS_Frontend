@@ -164,23 +164,59 @@ const RequestAppointmentCard = () => {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 dark:text-white p-6 rounded-2xl shadow-md h-full">
+        <div className="bg-gradient-to-br from-gray-800 to-gray-700 shadow-xl rounded-2xl p-6 h-full border border-gray-600 flex flex-col">
+            <style jsx>{`
+                .custom-scroll {
+                    scrollbar-width: thin;
+                    scrollbar-color: #8b5cf6 transparent;
+                }
+                .custom-scroll::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .custom-scroll::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .custom-scroll::-webkit-scrollbar-thumb {
+                    background: linear-gradient(to bottom, #8b5cf6, #a855f7);
+                    border-radius: 3px;
+                }
+                .custom-scroll::-webkit-scrollbar-thumb:hover {
+                    background: linear-gradient(to bottom, #7c3aed, #9333ea);
+                }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes slideIn {
+                    from { opacity: 0; transform: translateX(20px); }
+                    to { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes pulse {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
+                }
+                .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+                .animate-slideIn { animation: slideIn 0.4s ease-out; }
+                .animate-pulse-hover:hover { animation: pulse 0.3s ease-in-out; }
+            `}</style>
+
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold flex items-center gap-3">
-                    <div className="bg-purple-100 dark:bg-purple-900 p-2 rounded-lg">
+                <h2 className="text-xl font-semibold text-white flex items-center gap-3">
+                    <div className="bg-purple-100 dark:bg-purple-900 p-2 rounded-lg animate-pulse">
                         <FaUserClock className="text-purple-600 dark:text-purple-300" />
                     </div>
                     Pending Requests
                     {pendingRequests.length > 0 && (
-                        <span className="bg-purple-500 text-white text-xs px-2 py-1 rounded-full">
+                        <span className="bg-purple-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
                             {pendingRequests.length}
                         </span>
                     )}
                 </h2>
                 <button
                     onClick={() => setIsRequestOpen(true)}
-                    className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors"
+                    className="bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"
                 >
                     <FaPlus className="text-xs" />
                     New Request
@@ -188,41 +224,49 @@ const RequestAppointmentCard = () => {
             </div>
 
             {/* Requests List */}
-            <div className="flex-1 overflow-y-auto max-h-64">
+            <div className="flex-1 overflow-y-auto custom-scroll">
                 {pendingRequests.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
-                        <div className="bg-purple-100 dark:bg-purple-900 p-4 rounded-full mb-4">
-                            <IoMdDocument className="text-3xl text-purple-500 dark:text-purple-400" />
+                        <div className="bg-purple-100 dark:bg-purple-900 p-6 rounded-full mb-4 animate-pulse-hover">
+                            <IoMdDocument className="text-4xl text-purple-500 dark:text-purple-400" />
                         </div>
-                        <h3 className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-2">
+                        <h3 className="text-lg font-medium text-gray-300 mb-2">
                             No Pending Requests
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                        <p className="text-sm text-gray-400 max-w-xs">
                             Your appointment requests will appear here. Click "New Request" to schedule an appointment.
                         </p>
                     </div>
                 ) : (
                     <div className="space-y-3">
-                        {pendingRequests.map((req) => (
-                            <div key={req.id} className="bg-purple-50 dark:bg-gray-700 p-4 rounded-lg border-l-4 border-purple-500">
+                        {pendingRequests.map((req, index) => (
+                            <div
+                                key={req.id}
+                                className="bg-purple-900/20 backdrop-blur-sm p-4 rounded-xl border border-purple-500/30 hover:border-purple-400/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/20 animate-slideIn"
+                                style={{ animationDelay: `${index * 0.1}s` }}
+                            >
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <FaUser className="text-purple-600 dark:text-purple-300 text-sm" />
-                                            <span className="font-semibold text-gray-800 dark:text-white">
-                                                {req.name}
-                                            </span>
-                                            <span className="bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300 text-xs px-2 py-1 rounded-full font-medium">
-                                                {req.status}
-                                            </span>
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg animate-pulse-hover">
+                                                <FaUser className="text-white text-sm" />
+                                            </div>
+                                            <div>
+                                                <span className="font-semibold text-white block">
+                                                    {req.name}
+                                                </span>
+                                                <span className="bg-orange-500/20 text-orange-300 text-xs px-2 py-1 rounded-full font-medium border border-orange-500/30">
+                                                    {req.status}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                                        <div className="text-sm text-gray-300 space-y-2 pl-13">
                                             <div className="flex items-center gap-2">
-                                                <FaNotesMedical className="text-gray-400 text-xs" />
+                                                <FaNotesMedical className="text-purple-400 text-xs" />
                                                 <span>{req.reason}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <FaCalendarAlt className="text-gray-400 text-xs" />
+                                                <FaCalendarAlt className="text-blue-400 text-xs" />
                                                 <span>{req.date}</span>
                                             </div>
                                         </div>
@@ -234,21 +278,15 @@ const RequestAppointmentCard = () => {
                 )}
             </div>
 
-            {/* Footer */}
-            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
-                <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">Request status updates</span>
-                    <span className="text-purple-600 dark:text-purple-400 font-medium">Real-time</span>
-                </div>
-            </div>
+
 
             {/* Request Appointment Popup */}
             {isRequestOpen && (
-                <div className="fixed inset-0 modal-backdrop flex items-center justify-center z-50">
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl w-96 max-w-md mx-4 shadow-2xl">
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
+                    <div className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-2xl w-96 max-w-md mx-4 shadow-2xl border border-gray-600 animate-slideIn">
                         {/* Header */}
-                        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-600">
-                            <h3 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-3">
+                        <div className="flex items-center justify-between p-6 border-b border-gray-600">
+                            <h3 className="text-xl font-semibold text-white flex items-center gap-3">
                                 <div className="bg-purple-100 dark:bg-purple-900 p-2 rounded-lg">
                                     <FaCalendarAlt className="text-purple-600 dark:text-purple-300" />
                                 </div>
@@ -256,9 +294,9 @@ const RequestAppointmentCard = () => {
                             </h3>
                             <button
                                 onClick={handleCancel}
-                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
+                                className="w-8 h-8 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 rounded-lg flex items-center justify-center text-white transition-all duration-300 transform hover:scale-110"
                             >
-                                <FaTimes className="text-lg" />
+                                <FaTimes className="text-sm" />
                             </button>
                         </div>
 
@@ -266,22 +304,22 @@ const RequestAppointmentCard = () => {
                         <div className="p-6">
                             {loading ? (
                                 <div className="flex items-center justify-center py-8">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-                                    <span className="ml-3 text-gray-500 dark:text-gray-400">Loading doctors...</span>
+                                    <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                                    <span className="ml-3 text-gray-400">Loading doctors...</span>
                                 </div>
                             ) : (
                                 <div className="space-y-5">
                                     {/* Doctor Dropdown */}
                                     <div>
-                                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                            <FaUser className="text-purple-500" />
+                                        <label className="block text-sm font-medium mb-2 text-gray-300 flex items-center gap-2">
+                                            <FaUser className="text-purple-400" />
                                             Select Doctor *
                                         </label>
                                         <select
                                             name="doctorID"
                                             value={formData.doctorID}
                                             onChange={handleInputChange}
-                                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                            className="w-full px-4 py-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
                                             required
                                         >
                                             <option value="">Choose a doctor...</option>
@@ -295,8 +333,8 @@ const RequestAppointmentCard = () => {
 
                                     {/* Reason */}
                                     <div>
-                                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                            <FaNotesMedical className="text-purple-500" />
+                                        <label className="block text-sm font-medium mb-2 text-gray-300 flex items-center gap-2">
+                                            <FaNotesMedical className="text-purple-400" />
                                             Reason for Visit *
                                         </label>
                                         <textarea
@@ -305,7 +343,7 @@ const RequestAppointmentCard = () => {
                                             onChange={handleInputChange}
                                             placeholder="Describe your symptoms or reason for visit..."
                                             rows="3"
-                                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                            className="w-full px-4 py-3 border border-gray-600 rounded-lg bg-gray-700 text-white resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 placeholder-gray-400"
                                             required
                                         />
                                     </div>
@@ -314,8 +352,8 @@ const RequestAppointmentCard = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {/* Date */}
                                         <div>
-                                            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                                <FaCalendarAlt className="text-purple-500" />
+                                            <label className="block text-sm font-medium mb-2 text-gray-300 flex items-center gap-2">
+                                                <FaCalendarAlt className="text-purple-400" />
                                                 Preferred Date *
                                             </label>
                                             <input
@@ -324,22 +362,22 @@ const RequestAppointmentCard = () => {
                                                 value={formData.appointmentDate}
                                                 onChange={handleInputChange}
                                                 min={new Date().toISOString().split('T')[0]}
-                                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                                className="w-full px-4 py-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
                                                 required
                                             />
                                         </div>
 
                                         {/* Time */}
                                         <div>
-                                            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                                <FaClock className="text-purple-500" />
+                                            <label className="block text-sm font-medium mb-2 text-gray-300 flex items-center gap-2">
+                                                <FaClock className="text-purple-400" />
                                                 Preferred Time *
                                             </label>
                                             <select
                                                 name="appointmentTime"
                                                 value={formData.appointmentTime}
                                                 onChange={handleInputChange}
-                                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                                className="w-full px-4 py-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
                                                 required
                                             >
                                                 <option value="">Select time...</option>
@@ -356,15 +394,15 @@ const RequestAppointmentCard = () => {
                         </div>
 
                         {/* Footer */}
-                        <div className="flex gap-3 p-6 border-t border-gray-200 dark:border-gray-600">
+                        <div className="flex gap-3 p-6 border-t border-gray-600">
                             <button
                                 onClick={handleSubmit}
                                 disabled={submitting || loading}
-                                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                                className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white py-3 px-4 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg"
                             >
                                 {submitting ? (
                                     <>
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                         Sending...
                                     </>
                                 ) : (
@@ -377,7 +415,7 @@ const RequestAppointmentCard = () => {
                             <button
                                 onClick={handleCancel}
                                 disabled={submitting}
-                                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-medium disabled:bg-gray-400 transition-colors"
+                                className="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white py-3 px-4 rounded-lg font-medium disabled:opacity-50 transition-all duration-300 transform hover:scale-105"
                             >
                                 Cancel
                             </button>
