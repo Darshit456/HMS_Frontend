@@ -66,7 +66,7 @@ Modern healthcare management requires a panoramic view of all operations. Health
 *Experience Healthspan Vista in action through our comprehensive demo videos*
 <h2 align="center">🎬 Healthspan Vista Demo Video</h2>
 <p align="center">
-  <a href="https://youtu.be/cZ4-nkHM4n0" target="_blank">
+  <a href="https://youtu.be/cZ4-nkHM4n0?si=sOub8E7c75AkkDkn" target="_blank">
     <img src="https://img.youtube.com/vi/cZ4-nkHM4n0/hqdefault.jpg" alt="Watch Healthspan Vista Demo" width="700">
   </a>
 </p>
