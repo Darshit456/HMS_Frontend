@@ -12,7 +12,7 @@ const Login = () => {
             <div className="w-full max-w-4xl bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden flex flex-col md:flex-row">
                 {/* Left Side */}
                 <div className="w-full md:w-1/2 p-8 md:p-10 space-y-6">
-                    <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">MEDISOFT</h1>
+                    <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">Healthspan Vista</h1>
                     <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
                         Digitizing Healthcare for a Healthier Tomorrow.
                     </h2>
@@ -54,7 +54,7 @@ const Login = () => {
 
                 {/* Right Side */}
                 <div className="hidden md:flex md:w-1/2 bg-gray-100 dark:bg-gray-700 items-center justify-center">
-                    <img src="/src/assets/LoginPage.svg" alt="Login" className="w-full h-auto object-contain p-4" />
+                    <img src="/src/assets/Healthcare Technology Firm Logo.png" alt="Login" className="w-full h-auto object-contain p-4" />
                 </div>
             </div>
         </div>
